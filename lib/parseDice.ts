@@ -38,16 +38,12 @@ export const diceLanguage = P.createLanguage<LangSpec>({
 
   factor1: (r) =>
     P.alt(
-      P.seqMap(r.factor, P.string("d").trim(r._), r.factor, (l, op, r) => ({
-        l,
-        op,
-        r,
-      })),
-      P.seqMap(P.string("d").trim(r._), r.factor, (op, r) => ({
-        l: 1,
-        op,
-        r,
-      })),
+      P.seqMap(r.factor, P.string("d").trim(r._), r.factor, (l, op, r) => {
+        return { l, op, r };
+      }),
+      P.seqMap(P.string("d").trim(r._), r.factor, (op, r) => {
+        return { l: 1, op, r };
+      }),
       r.factor
     ),
 
