@@ -10,15 +10,7 @@ export function prob(diceExpr: DiceExpression): Map<number, number> {
   const op = diceExpr.op;
 
   if (op === "d") {
-    return new Map(
-      (function* () {
-        for (const [rv, rp] of r.entries()) {
-          for (let i = 1; i <= rv; ++i) {
-            yield [i, 1 / rv];
-          }
-        }
-      })()
-    );
+    return snorg(r, (s) => dice(s));
   }
 
   return corg(l, r, function (lv, rv) {
@@ -33,6 +25,16 @@ export function prob(diceExpr: DiceExpression): Map<number, number> {
         return lv / rv;
     }
   });
+}
+
+function dice(sides: number): Map<number, number> {
+  return new Map(
+    (function* () {
+      for (let i = 1; i <= sides; ++i) {
+        yield [i, 1 / sides];
+      }
+    })()
+  );
 }
 
 function corg(
@@ -52,15 +54,17 @@ function corg(
   return m;
 }
 
-export function normalize(p: Map<number, number>): Map<number, number> {
-  let total = 0;
-  for (const x of p.values()) {
-    total += x;
+function snorg(
+  x: Map<number, number>,
+  f: (x: number) => Map<number, number>
+): Map<number, number> {
+  const m = new Map<number, number>();
+
+  for (const [xv, xp] of x.entries()) {
+    for (const [yv, yp] of f(xv).entries()) {
+      m.set(yv, (m.get(yv) ?? 0) + xp * yp);
+    }
   }
 
-  const m = new Map<number, number>();
-  for (const [k, v] of p.entries()) {
-    m.set(k, v / total);
-  }
   return m;
 }
