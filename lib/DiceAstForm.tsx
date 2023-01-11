@@ -1,7 +1,10 @@
 import { FC, useRef, useState } from "react";
+import { CombGraph } from "./CombGraph";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { prob } from "./probability";
+
+// the largest value k such that for all x in xs, x = k*n+min(xs)
 
 export const DiceAstForm: FC = () => {
   const [inputValue, setInputValue] = useState("2d6 + 5");
@@ -25,6 +28,9 @@ export const DiceAstForm: FC = () => {
       />
       <pre>{JSON.stringify(pr)}</pre>
       <div>{prs.status ? dicePrettyPrint(prs.value) : null}</div>
+      {prs.status ? (
+        <CombGraph data={prob(prs.value)} width={800} height={600} />
+      ) : null}
       {prs.status ? (
         <table>
           <tbody>
