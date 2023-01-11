@@ -45,7 +45,7 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
       r.term,
       P.seq(P.alt(P.string("+"), P.string("-")).trim(r._), r.term).many(),
       (first, rest) => rest.reduce((l, [op, r]) => ({ l, op, r }), first)
-    ),
+    ).trim(r._),
 });
 
 export const diceParser = diceLanguage.expr;
