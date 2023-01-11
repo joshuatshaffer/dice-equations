@@ -10,29 +10,17 @@ export function prob(diceExpr: DiceExpression): Map<number, number> {
   const op = diceExpr.op;
 
   if (op === "d") {
-    return new Map(
-      (function* () {
-        for (const [lv, lp] of l.entries()) {
-          for (const [rv, rp] of r.entries()) {
-            for (let i = 1; i <= rv; ++i) {
-              yield [i, lp + rp];
-            }
-          }
-        }
-      })()
-    );
+    return corg(l, r, function* (lv, rv) {
+      for (let i = 1; i <= rv; ++i) {
+        yield i;
+      }
+    });
   }
 
   if (op === "+") {
-    return new Map(
-      (function* () {
-        for (const [lv, lp] of l.entries()) {
-          for (const [rv, rp] of r.entries()) {
-            yield [lv + rv, lp + rp];
-          }
-        }
-      })()
-    );
+    return corg(l, r, function* (lv, rv) {
+      yield lv + rv;
+    });
   }
 
   return new Map();
