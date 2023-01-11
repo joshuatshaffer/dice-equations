@@ -3,11 +3,13 @@ lockfileVersion: 5.4
 specifiers:
   '@next/font': 13.1.1
   '@types/node': 18.11.18
+  '@types/parsimmon': 1.10.6
   '@types/react': 18.0.26
   '@types/react-dom': 18.0.10
   eslint: 8.31.0
   eslint-config-next: 13.1.1
   next: 13.1.1
+  parsimmon: 1.18.1
   react: 18.2.0
   react-dom: 18.2.0
   typescript: 4.9.4
@@ -15,11 +17,13 @@ specifiers:
 dependencies:
   '@next/font': 13.1.1
   '@types/node': 18.11.18
+  '@types/parsimmon': 1.10.6
   '@types/react': 18.0.26
   '@types/react-dom': 18.0.10
   eslint: 8.31.0
   eslint-config-next: 13.1.1_iukboom6ndih5an6iafl45j2fe
   next: 13.1.1_biqbaboplfbrettd7655fr4n2y
+  parsimmon: 1.18.1
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   typescript: 4.9.4
@@ -250,6 +254,10 @@ packages:
 
   /@types/node/18.11.18:
     resolution: {integrity: sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==}
+    dev: false
+
+  /@types/parsimmon/1.10.6:
+    resolution: {integrity: sha512-FwAQwMRbkhx0J6YELkwIpciVzCcgEqXEbIrIn3a2P5d3kGEHQ3wVhlN3YdVepYP+bZzCYO6OjmD4o9TGOZ40rA==}
     dev: false
 
   /@types/prop-types/15.7.5:
@@ -1726,6 +1734,10 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       callsites: 3.1.0
+    dev: false
+
+  /parsimmon/1.18.1:
+    resolution: {integrity: sha512-u7p959wLfGAhJpSDJVYXoyMCXWYwHia78HhRBWqk7AIbxdmlrfdp5wX0l3xv/iTSH5HvhN9K7o26hwwpgS5Nmw==}
     dev: false
 
   /path-exists/4.0.0:
