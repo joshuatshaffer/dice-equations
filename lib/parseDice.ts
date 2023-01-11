@@ -7,27 +7,27 @@ import P from "parsimmon";
 //
 // d-opp := factor d factor | d factor
 
-type Expression =
+export type DiceExpression =
   | {
       op: "+" | "-" | "*" | "/" | "d";
-      l: Expression;
-      r: Expression;
+      l: DiceExpression;
+      r: DiceExpression;
     }
   | number;
 
-interface LangSpec {
+interface DiceLanguage {
   _: string;
   __: string;
 
-  expr: Expression;
-  term: Expression;
-  factor: Expression;
-  factor1: Expression;
+  expr: DiceExpression;
+  term: DiceExpression;
+  factor: DiceExpression;
+  factor1: DiceExpression;
 
   numberLiteral: number;
 }
 
-export const diceLanguage = P.createLanguage<LangSpec>({
+export const diceLanguage = P.createLanguage<DiceLanguage>({
   _: () => P.optWhitespace,
   __: () => P.whitespace,
 
