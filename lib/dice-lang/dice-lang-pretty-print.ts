@@ -23,11 +23,7 @@ export function dicePrettyPrint(expr: DiceExpression): string {
     return `${l}${op}${r}`;
   }
 
-  if (expr.op === "+") {
-    return `${l} ${op} ${r}`;
-  }
-
-  if (expr.op === "-") {
+  if (expr.op === "+" || expr.op === "-") {
     if (
       typeof expr.r !== "number" &&
       (expr.r.op === "+" || expr.r.op === "-")
@@ -38,7 +34,7 @@ export function dicePrettyPrint(expr: DiceExpression): string {
     return `${l} ${op} ${r}`;
   }
 
-  if (expr.op === "*") {
+  if (expr.op === "*" || expr.op === "/") {
     if (
       typeof expr.l !== "number" &&
       (expr.l.op === "+" || expr.l.op === "-")
@@ -48,7 +44,10 @@ export function dicePrettyPrint(expr: DiceExpression): string {
 
     if (
       typeof expr.r !== "number" &&
-      (expr.r.op === "+" || expr.r.op === "-" || expr.r.op === "/")
+      (expr.r.op === "+" ||
+        expr.r.op === "-" ||
+        expr.r.op === "/" ||
+        expr.r.op === "*")
     ) {
       r = `(${r})`;
     }
@@ -56,5 +55,5 @@ export function dicePrettyPrint(expr: DiceExpression): string {
     return `${l} ${op} ${r}`;
   }
 
-  return `${l} ${op} ${r}`;
+  return `(${l}) ${op} (${r})`;
 }
