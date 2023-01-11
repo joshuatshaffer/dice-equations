@@ -1,5 +1,6 @@
 import { DiceExpression } from "./dice-lang-ast";
 
+// TODO: Add minify option.
 export function dicePrettyPrint(expr: DiceExpression): string {
   if (typeof expr === "number") {
     return expr.toString();
