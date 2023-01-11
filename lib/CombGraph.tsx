@@ -47,6 +47,15 @@ export const CombGraph: FC<CombGraphProps> = ({
           </g>
         );
       })}
+
+      {/* X-axis */}
+      {(() => {
+        const p1 = mapPoint({ x: s.x.min, y: 0 });
+        const p2 = mapPoint({ x: s.x.max, y: 0 });
+        return (
+          <line x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y} stroke="currentColor" />
+        );
+      })()}
     </svg>
   );
 };
