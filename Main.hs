@@ -19,6 +19,7 @@ d-opp := factor d factor | d factor
 
 import qualified Data.Map.Strict as Map
 import Data.Ratio
+import System.Environment 
 
 type Foo a b = Lit a
              | Add (Foo a b) (Foo a b)
@@ -36,17 +37,44 @@ eval (x `Div` y) = eval x / eval y
 eval (x `Die` y) = undefined
 
 
-add xs ys = Map.fromListWith (+) [ (xk + yk, xv + yv) 
-                                 | (xk, xv) <- Map.toAscList xs
-                                 , (yk, yv) <- Map.toAscList ys
+{-
+To compute and store probibility distributions we use Maps where the value of an event is the key and the probability of the event is the value.
+-}
+
+opp o x y = Map.fromListWith (+) [ (o xk yk, xv * yv) 
+                                 | (xk, xv) <- Map.toAscList x
+                                 , (yk, yv) <- Map.toAscList y
                                  ]
 
-dieEvents s = Map.fromAscList $ zip [1..s] (repeat 1)
+add = opp (+)
+sub = opp (-)
+mul = opp (*)
+div' = opp div
+lit :: (Integral a, Integral b) => a -> Map.Map a (Ratio b)
+lit n = Map.fromAscList [(n, 1)]
 
-diceEvents n s | n == 1 = dieEvents s
-               | even n = let d = diceEvents (n `div` 2) s in add d d
-               | otherwise = add (diceEvents (n-1) s) (dieEvents s)
+-- An efficiant way to add something to itself n times.
+mulFromAdd :: Integral i => (a -> a -> a) -> i -> a -> a
+mulFromAdd (.+) n x
+  | n <= 0 = undefined
+  | n == 1 = x
+  | even n = mulFromAdd (.+) (n `div` 2) (x .+ x)
+  | otherwise = (mulFromAdd (.+) (n - 1) x) .+ x
 
-normalizeEvents xs = Map.map (% total) xs
-  where
-    total = Map.foldl (+) 0 xs
+dieEvents s = Map.fromAscList $ zip [1..s] (repeat $ 1 % s)
+
+diceEvents n s = mulFromAdd add n $ dieEvents s
+
+
+computePmf :: (Fractional a, Integral b) => Foo a b -> a
+computePmf (Lit x) = x
+computePmf (x `Add` y) = computePmf x `add` computePmf y
+computePmf (x `Sub` y) = computePmf x `sub` computePmf y
+computePmf (x `Mul` y) = computePmf x `mul` computePmf y
+computePmf (x `Div` y) = computePmf x `div'` computePmf y
+computePmf (x `Die` y) = undefined
+
+
+main = do
+  [n, s] <- getArgs
+  print $ diceEvents (read n :: Integer) (read s :: Integer)
