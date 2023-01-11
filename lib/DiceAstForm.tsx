@@ -17,7 +17,15 @@ export const DiceAstForm: FC = () => {
         }}
       />
       <pre>{JSON.stringify(pr)}</pre>
-      {pr.status ? JSON.stringify(prob(pr.value)) : null}
+      {pr.status ? (
+        <ul>
+          {[...prob(pr.value).entries()].map(([k, v]) => (
+            <li>
+              {k}: {v}
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 };
