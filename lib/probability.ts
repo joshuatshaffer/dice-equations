@@ -10,7 +10,8 @@ export function prob(diceExpr: DiceExpression): Map<number, number> {
   const op = diceExpr.op;
 
   if (op === "d") {
-    return snorg(r, (s) => dice(s));
+    const s = snorg(r, (s) => dice(s));
+    return snorg(l, (lv) => plorg(lv, s));
   }
 
   return corg(l, r, function (lv, rv) {
@@ -64,6 +65,16 @@ function snorg(
     for (const [yv, yp] of f(xv).entries()) {
       m.set(yv, (m.get(yv) ?? 0) + xp * yp);
     }
+  }
+
+  return m;
+}
+
+function plorg(times: number, x: Map<number, number>): Map<number, number> {
+  let m = new Map<number, number>(x);
+
+  for (let i = 1; i < times; ++i) {
+    m = corg(m, x, (w, z) => w + z);
   }
 
   return m;
