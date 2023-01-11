@@ -31,9 +31,8 @@ export const CombGraph: FC<CombGraphProps> = ({
         const p1 = mapPoint({ x, y: 0 });
         const p2 = mapPoint({ x, y });
         return (
-          <g>
+          <g key={x}>
             <line
-              key={x}
               x1={p1.x}
               y1={p1.y}
               x2={p2.x}
