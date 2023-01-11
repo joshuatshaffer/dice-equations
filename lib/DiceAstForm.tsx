@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { MyMath } from "./math-parser-example";
 import { diceLanguage } from "./parseDice";
-import { normalize, prob } from "./probability";
+import { prob } from "./probability";
 
 export const DiceAstForm: FC = () => {
   const [inputValue, setInputValue] = useState("2d6 + 5");
@@ -18,13 +18,25 @@ export const DiceAstForm: FC = () => {
       />
       <pre>{JSON.stringify(pr)}</pre>
       {pr.status ? (
-        <ul>
-          {[...prob(pr.value).entries()].map(([k, v]) => (
-            <li>
-              {k}: {(v * 100).toFixed(2)}
-            </li>
-          ))}
-        </ul>
+        <table>
+          <tbody>
+            {[...prob(pr.value).entries()].map(([k, v]) => (
+              <tr key={k}>
+                <td style={{ textAlign: "right" }}>{k}</td>
+                <td style={{ textAlign: "right" }}>{(v * 100).toFixed(2)}%</td>
+                <td style={{ width: 1000 }}>
+                  <div
+                    style={{
+                      width: `${v * 100}%`,
+                      height: "18px",
+                      backgroundColor: "darkgray",
+                    }}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : null}
     </div>
   );
