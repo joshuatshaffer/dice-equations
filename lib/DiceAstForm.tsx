@@ -12,6 +12,16 @@ function firstValue(x: string | string[] | undefined): string | undefined {
   return x;
 }
 
+function useLatest<T>(x: T, initialValue = x): T {
+  const latestRef = useRef(initialValue);
+
+  if (x !== undefined) {
+    latestRef.current = x;
+  }
+
+  return latestRef.current;
+}
+
 export const DiceAstForm: FC = () => {
   const router = useRouter();
 
@@ -23,13 +33,11 @@ export const DiceAstForm: FC = () => {
     router.replace({ query: { ...router.query, p: inputValue } });
   }, [inputValue]);
 
-  const pr = diceParser.parse(inputValue);
+  const parseResult = diceParser.parse(inputValue);
 
-  const prsRef = useRef(pr);
-  if (pr.status) {
-    prsRef.current = pr;
-  }
-  const prs = prsRef.current;
+  const parsedExpr = useLatest(
+    parseResult.status ? parseResult.value : undefined
+  );
 
   return (
     <div>
@@ -41,13 +49,13 @@ export const DiceAstForm: FC = () => {
           setInputValue(event.currentTarget.value);
         }}
       />
-      <pre>{JSON.stringify(pr)}</pre>
+      <pre>{JSON.stringify(parseResult)}</pre>
       <button
         type="button"
-        disabled={!pr.status}
+        disabled={parsedExpr === undefined}
         onClick={() => {
-          if (pr.status) {
-            setInputValue(dicePrettyPrint(pr.value));
+          if (parsedExpr !== undefined) {
+            setInputValue(dicePrettyPrint(parsedExpr));
           }
         }}
       >
@@ -55,10 +63,10 @@ export const DiceAstForm: FC = () => {
       </button>
       <button
         type="button"
-        disabled={!pr.status}
+        disabled={parsedExpr === undefined}
         onClick={() => {
-          if (pr.status) {
-            setInputValue(dicePrettyPrint(pr.value, { format: "min" }));
+          if (parsedExpr !== undefined) {
+            setInputValue(dicePrettyPrint(parsedExpr, { format: "min" }));
           }
         }}
       >
@@ -66,11 +74,11 @@ export const DiceAstForm: FC = () => {
       </button>
       <button
         type="button"
-        disabled={!pr.status}
+        disabled={parsedExpr === undefined}
         onClick={() => {
-          if (pr.status) {
+          if (parsedExpr !== undefined) {
             setInputValue(
-              dicePrettyPrint(pr.value, { format: "pedanticParens" })
+              dicePrettyPrint(parsedExpr, { format: "pedanticParens" })
             );
           }
         }}
@@ -78,18 +86,18 @@ export const DiceAstForm: FC = () => {
         pedanticParens
       </button>
 
-      {prs.status ? (
+      {parsedExpr ? (
         <CombGraph
-          data={prob(prs.value)}
+          data={prob(parsedExpr)}
           width={800}
           height={600}
           padding={10}
         />
       ) : null}
-      {prs.status ? (
+      {parsedExpr ? (
         <table>
           <tbody>
-            {[...prob(prs.value).entries()]
+            {[...prob(parsedExpr).entries()]
               .sort(([a], [b]) => a - b)
               .map(([k, v]) => (
                 <tr key={k}>
