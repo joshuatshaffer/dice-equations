@@ -1,14 +1,27 @@
 import { DiceExpression } from "./dice-lang-ast";
 
-// TODO: Add minify option.
-export function dicePrettyPrint(expr: DiceExpression): string {
+interface DicePrintOptions {
+  /**
+   * @default 'pretty'
+   */
+  format?: "pretty" | "min" | "pedanticParens";
+}
+
+export function dicePrettyPrint(
+  expr: DiceExpression,
+  options?: DicePrintOptions
+): string {
   if (typeof expr === "number") {
     return expr.toString();
   }
 
-  let l = dicePrettyPrint(expr.l);
-  let r = dicePrettyPrint(expr.r);
+  let l = dicePrettyPrint(expr.l, options);
+  let r = dicePrettyPrint(expr.r, options);
   const op = expr.op;
+
+  if (options?.format === "pedanticParens") {
+    return `(${l})${op}(${r})`;
+  }
 
   if (expr.op === "d") {
     if (typeof expr.l !== "number") {
@@ -32,7 +45,7 @@ export function dicePrettyPrint(expr: DiceExpression): string {
       r = `(${r})`;
     }
 
-    return `${l} ${op} ${r}`;
+    return options?.format === "min" ? `${l}${op}${r}` : `${l} ${op} ${r}`;
   }
 
   if (expr.op === "*" || expr.op === "/") {
@@ -53,7 +66,7 @@ export function dicePrettyPrint(expr: DiceExpression): string {
       r = `(${r})`;
     }
 
-    return `${l} ${op} ${r}`;
+    return options?.format === "min" ? `${l}${op}${r}` : `${l} ${op} ${r}`;
   }
 
   return `(${l}) ${op} (${r})`;

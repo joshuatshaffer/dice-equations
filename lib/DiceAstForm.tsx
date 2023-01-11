@@ -27,7 +27,42 @@ export const DiceAstForm: FC = () => {
         }}
       />
       <pre>{JSON.stringify(pr)}</pre>
-      <div>{prs.status ? dicePrettyPrint(prs.value) : null}</div>
+      <button
+        type="button"
+        disabled={!pr.status}
+        onClick={() => {
+          if (pr.status) {
+            setInputValue(dicePrettyPrint(pr.value));
+          }
+        }}
+      >
+        pretty print
+      </button>
+      <button
+        type="button"
+        disabled={!pr.status}
+        onClick={() => {
+          if (pr.status) {
+            setInputValue(dicePrettyPrint(pr.value, { format: "min" }));
+          }
+        }}
+      >
+        minify
+      </button>
+      <button
+        type="button"
+        disabled={!pr.status}
+        onClick={() => {
+          if (pr.status) {
+            setInputValue(
+              dicePrettyPrint(pr.value, { format: "pedanticParens" })
+            );
+          }
+        }}
+      >
+        pedanticParens
+      </button>
+
       {prs.status ? (
         <CombGraph
           data={prob(prs.value)}
