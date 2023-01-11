@@ -28,21 +28,25 @@ export const DiceAstForm: FC = () => {
       {prs.status ? (
         <table>
           <tbody>
-            {[...prob(prs.value).entries()].map(([k, v]) => (
-              <tr key={k}>
-                <td style={{ textAlign: "right" }}>{k}</td>
-                <td style={{ textAlign: "right" }}>{(v * 100).toFixed(2)}%</td>
-                <td style={{ width: 1000 }}>
-                  <div
-                    style={{
-                      width: `${v * 100}%`,
-                      height: "18px",
-                      backgroundColor: "darkgray",
-                    }}
-                  />
-                </td>
-              </tr>
-            ))}
+            {[...prob(prs.value).entries()]
+              .sort(([a], [b]) => a - b)
+              .map(([k, v]) => (
+                <tr key={k}>
+                  <td style={{ textAlign: "right" }}>{k}</td>
+                  <td style={{ textAlign: "right" }}>
+                    {(v * 100).toFixed(2)}%
+                  </td>
+                  <td style={{ width: 1000 }}>
+                    <div
+                      style={{
+                        width: `${v * 100}%`,
+                        height: "18px",
+                        backgroundColor: "darkgray",
+                      }}
+                    />
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       ) : null}
