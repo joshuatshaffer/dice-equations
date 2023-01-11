@@ -16,6 +16,10 @@ export const CombGraph: FC<CombGraphProps> = ({
 }) => {
   const s = stats(data);
 
+  // Include the x-axis in the view.
+  if (0 < s.y.min) s.y.min = 0;
+  if (0 > s.y.max) s.y.max = 0;
+
   const mapPoint = ({ x, y }: { x: number; y: number }) => ({
     x: mapRange(x, s.x, { min: padding, max: width - padding }),
     y: mapRange(y, s.y, { min: height - padding, max: padding }),
@@ -50,7 +54,7 @@ export const CombGraph: FC<CombGraphProps> = ({
 function stats(data: Map<number, number>) {
   let s = {
     x: { min: Infinity, max: -Infinity },
-    y: { min: 0, max: 0 },
+    y: { min: Infinity, max: -Infinity },
   };
 
   for (const [x, y] of data.entries()) {
