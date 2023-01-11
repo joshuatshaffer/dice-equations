@@ -1,12 +1,12 @@
 import { FC, useState } from "react";
 import { MyMath } from "./math-parser-example";
-import { diceLanguage } from "./parseDice";
+import { diceAstToString, diceParser } from "./parseDice";
 import { prob } from "./probability";
 
 export const DiceAstForm: FC = () => {
   const [inputValue, setInputValue] = useState("2d6 + 5");
 
-  const pr = diceLanguage.expr.parse(inputValue);
+  const pr = diceParser.parse(inputValue);
   return (
     <div>
       <input
@@ -17,6 +17,7 @@ export const DiceAstForm: FC = () => {
         }}
       />
       <pre>{JSON.stringify(pr)}</pre>
+      <div>{pr.status ? diceAstToString(pr.value) : null}</div>
       {pr.status ? (
         <table>
           <tbody>

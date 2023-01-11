@@ -27,7 +27,7 @@ interface DiceLanguage {
   numberLiteral: number;
 }
 
-export const diceLanguage = P.createLanguage<DiceLanguage>({
+const diceLanguage = P.createLanguage<DiceLanguage>({
   _: () => P.optWhitespace,
   __: () => P.whitespace,
 
@@ -61,3 +61,66 @@ export const diceLanguage = P.createLanguage<DiceLanguage>({
       (first, rest) => rest.reduce((l, [op, r]) => ({ l, op, r }), first)
     ),
 });
+
+const folsjk = (4 * (2 * 5)) / 3 / 4;
+
+export const diceParser = diceLanguage.expr;
+
+export function diceAstToString(expr: DiceExpression): string {
+  if (typeof expr === "number") {
+    return expr.toString();
+  }
+
+  let l = diceAstToString(expr.l);
+  let r = diceAstToString(expr.r);
+  const op = expr.op;
+
+  if (expr.op === "d") {
+    if (typeof expr.l !== "number") {
+      l = `(${l})`;
+    } else if (expr.l === 1) {
+      l = "";
+    }
+
+    if (typeof expr.r !== "number") {
+      r = `(${r})`;
+    }
+
+    return `${l}${op}${r}`;
+  }
+
+  if (expr.op === "+") {
+    return `${l} ${op} ${r}`;
+  }
+
+  if (expr.op === "-") {
+    if (
+      typeof expr.r !== "number" &&
+      (expr.r.op === "+" || expr.r.op === "-")
+    ) {
+      r = `(${r})`;
+    }
+
+    return `${l} ${op} ${r}`;
+  }
+
+  if (expr.op === "*") {
+    if (
+      typeof expr.l !== "number" &&
+      (expr.l.op === "+" || expr.l.op === "-")
+    ) {
+      l = `(${l})`;
+    }
+
+    if (
+      typeof expr.r !== "number" &&
+      (expr.r.op === "+" || expr.r.op === "-" || expr.r.op === "/")
+    ) {
+      r = `(${r})`;
+    }
+
+    return `${l} ${op} ${r}`;
+  }
+
+  return `${l} ${op} ${r}`;
+}
