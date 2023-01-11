@@ -41,9 +41,7 @@ export const CombGraph: FC<CombGraphProps> = ({
               stroke="currentColor"
             />
             <circle r={2} cx={p2.x} cy={p2.y} />
-            <title>
-              {x} has a {(y * 100).toPrecision(2)}% chance.
-            </title>
+            <title>{`${x} has a ${(y * 100).toPrecision(2)}% chance.`}</title>
           </g>
         );
       })}
