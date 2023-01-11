@@ -10,3 +10,7 @@
 - Better error messages for invalid equations.
 - Simplify equations.
 - Investigate performance of calculations.
+
+## Related and Similar Projects
+
+- https://anydice.com/ also computes dice equations but it does not use client side scripts to do this.
