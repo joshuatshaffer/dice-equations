@@ -5,29 +5,41 @@ export interface CombGraphProps {
 
   width: number;
   height: number;
+  padding: number;
 }
 
-export const CombGraph: FC<CombGraphProps> = ({ data, width, height }) => {
+export const CombGraph: FC<CombGraphProps> = ({
+  data,
+  width,
+  height,
+  padding,
+}) => {
   const s = stats(data);
+
+  const mapPoint = ({ x, y }: { x: number; y: number }) => ({
+    x: mapRange(x, s.x, { min: padding, max: width - padding }),
+    y: mapRange(y, s.y, { min: height - padding, max: padding }),
+  });
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`}>
-      {[...data.entries()].map(([k, v]) => {
+      {[...data.entries()].map(([x, y]) => {
+        const p1 = mapPoint({ x, y: 0 });
+        const p2 = mapPoint({ x, y });
         return (
           <g>
             <line
-              key={k}
-              x1={mapRange(k, s.x, { min: 0, max: width })}
-              y1={height}
-              x2={mapRange(k, s.x, { min: 0, max: width })}
-              y2={mapRange(v, s.y, { min: height, max: 0 })}
+              key={x}
+              x1={p1.x}
+              y1={p1.y}
+              x2={p2.x}
+              y2={p2.y}
               stroke="currentColor"
             />
-            <circle
-              r={4}
-              cx={mapRange(k, s.x, { min: 0, max: width })}
-              cy={mapRange(v, s.y, { min: height, max: 0 })}
-            />
+            <circle r={2} cx={p2.x} cy={p2.y} />
+            <title>
+              {x} has a {(y * 100).toPrecision(2)}% chance.
+            </title>
           </g>
         );
       })}

@@ -29,7 +29,12 @@ export const DiceAstForm: FC = () => {
       <pre>{JSON.stringify(pr)}</pre>
       <div>{prs.status ? dicePrettyPrint(prs.value) : null}</div>
       {prs.status ? (
-        <CombGraph data={prob(prs.value)} width={800} height={600} />
+        <CombGraph
+          data={prob(prs.value)}
+          width={800}
+          height={600}
+          padding={10}
+        />
       ) : null}
       {prs.status ? (
         <table>
