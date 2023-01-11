@@ -1,4 +1,5 @@
-import { FC, useRef, useState } from "react";
+import { useRouter } from "next/router";
+import { FC, useEffect, useRef, useState } from "react";
 import { CombGraph } from "./CombGraph";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
@@ -6,8 +7,21 @@ import { prob } from "./probability";
 
 // the largest value k such that for all x in xs, x = k*n+min(xs)
 
+function firstValue(x: string | string[] | undefined): string | undefined {
+  if (Array.isArray(x)) return x[0];
+  return x;
+}
+
 export const DiceAstForm: FC = () => {
-  const [inputValue, setInputValue] = useState("2d6 + 5");
+  const router = useRouter();
+
+  const [inputValue, setInputValue] = useState<string>(
+    firstValue(router.query.p) || "2d6 + 5"
+  );
+
+  useEffect(() => {
+    router.replace({ query: { ...router.query, p: inputValue } });
+  }, [inputValue]);
 
   const pr = diceParser.parse(inputValue);
 
@@ -21,6 +35,7 @@ export const DiceAstForm: FC = () => {
     <div>
       <input
         type="text"
+        name="p"
         value={inputValue}
         onChange={(event) => {
           setInputValue(event.currentTarget.value);
