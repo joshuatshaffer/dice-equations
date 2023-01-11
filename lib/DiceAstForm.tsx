@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { MyMath } from "./math-parser-example";
 import { diceLanguage } from "./parseDice";
-import { prob } from "./probability";
+import { normalize, prob } from "./probability";
 
 export const DiceAstForm: FC = () => {
   const [inputValue, setInputValue] = useState("2d6 + 5");
@@ -21,7 +21,7 @@ export const DiceAstForm: FC = () => {
         <ul>
           {[...prob(pr.value).entries()].map(([k, v]) => (
             <li>
-              {k}: {v}
+              {k}: {(v * 100).toFixed(2)}
             </li>
           ))}
         </ul>

@@ -1,6 +1,6 @@
 console.log("start");
 
-type Exp =
+export type Exp =
   | number
   | {
       op: "add" | "sub" | "mul" | "div";
@@ -153,7 +153,7 @@ for (const x of evalEvents({
   b: {
     op: "add",
     a: { op: "die", a: 1, b: 4 },
-    b: { op: "die", a: 1, b: 4 }
-  }
+    b: { op: "die", a: 1, b: 4 },
+  },
 }))
   console.log(x);
