@@ -6,6 +6,8 @@ export interface CombGraphProps {
   width: number;
   height: number;
   padding: number;
+
+  className?: string;
 }
 
 export const CombGraph: FC<CombGraphProps> = ({
@@ -13,6 +15,7 @@ export const CombGraph: FC<CombGraphProps> = ({
   width,
   height,
   padding,
+  className,
 }) => {
   const s = stats(data);
 
@@ -26,7 +29,7 @@ export const CombGraph: FC<CombGraphProps> = ({
   });
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`}>
+    <svg viewBox={`0 0 ${width} ${height}`} className={className}>
       {[...data.entries()]
         .sort(([a], [b]) => a - b)
         .map(([x, y]) => {
