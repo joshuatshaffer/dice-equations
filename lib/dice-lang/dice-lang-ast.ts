@@ -1,18 +1,6 @@
-import type P from "parsimmon";
+export type NumberLiteral = number;
 
-interface Node {
-  type: string;
-  start: P.Index;
-  end: P.Index;
-}
-
-export interface NumberLiteral extends Node {
-  type: "NumberLiteral";
-  value: number;
-}
-
-export interface BinaryOperation extends Node {
-  type: "BinaryOperation";
+export interface BinaryOperation {
   operator: "+" | "-" | "*" | "/" | "d";
   left: Expression;
   right: Expression;
