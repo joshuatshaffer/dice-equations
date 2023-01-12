@@ -60,7 +60,7 @@ export const DiceAstForm: FC = () => {
         }}
       >
         pretty print
-      </button>
+      </button>{" "}
       <button
         type="button"
         disabled={parsedExpr === undefined}
@@ -71,7 +71,7 @@ export const DiceAstForm: FC = () => {
         }}
       >
         minify
-      </button>
+      </button>{" "}
       <button
         type="button"
         disabled={parsedExpr === undefined}
@@ -85,7 +85,6 @@ export const DiceAstForm: FC = () => {
       >
         pedanticParens
       </button>
-
       {parsedExpr ? (
         <CombGraph
           data={prob(parsedExpr)}
