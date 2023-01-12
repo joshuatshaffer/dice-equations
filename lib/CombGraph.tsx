@@ -27,23 +27,66 @@ export const CombGraph: FC<CombGraphProps> = ({
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`}>
-      {[...data.entries()].map(([x, y]) => {
-        const p1 = mapPoint({ x, y: 0 });
-        const p2 = mapPoint({ x, y });
-        return (
-          <g key={x}>
-            <line
-              x1={p1.x}
-              y1={p1.y}
-              x2={p2.x}
-              y2={p2.y}
-              stroke="currentColor"
-            />
-            <circle r={2} cx={p2.x} cy={p2.y} />
-            <title>{`${x} has a ${(y * 100).toPrecision(2)}% chance.`}</title>
-          </g>
-        );
-      })}
+      {[...data.entries()]
+        .sort(([a], [b]) => a - b)
+        .map(([x, y]) => {
+          return {
+            original: { x, y },
+            pixelSpace: {
+              ...mapPoint({ x, y }),
+              bottom: mapPoint({ x, y: 0 }),
+            },
+          };
+        })
+        .map((v, index, array) => {
+          const next = array[index + 1];
+          const prev = array[index - 1];
+
+          const left = prev
+            ? (v.pixelSpace.x + prev.pixelSpace.x) / 2
+            : v.pixelSpace.x;
+
+          const right = next
+            ? (v.pixelSpace.x + next.pixelSpace.x) / 2
+            : v.pixelSpace.x;
+
+          const top = v.pixelSpace.y - 10;
+
+          return {
+            ...v,
+            pixelSpace: {
+              ...v.pixelSpace,
+              left,
+              top,
+              width: right - left,
+              height: v.pixelSpace.bottom.y - top,
+            },
+          };
+        })
+        .map(({ original, pixelSpace }) => {
+          return (
+            <g key={original.x}>
+              <line
+                x1={pixelSpace.bottom.x}
+                y1={pixelSpace.bottom.y}
+                x2={pixelSpace.x}
+                y2={pixelSpace.y}
+                stroke="currentColor"
+              />
+              <circle r={2} cx={pixelSpace.x} cy={pixelSpace.y} />
+              <rect
+                x={pixelSpace.left}
+                y={pixelSpace.top}
+                width={pixelSpace.width}
+                height={pixelSpace.height}
+                fill="transparent"
+              />
+              <title>{`${original.x} has a ${(original.y * 100).toPrecision(
+                2
+              )}% chance.`}</title>
+            </g>
+          );
+        })}
 
       {/* X-axis */}
       {(() => {
