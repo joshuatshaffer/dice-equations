@@ -3,6 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { CombGraph } from "./CombGraph";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
+import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
 import { prob } from "./probability";
 import { useLatest } from "./useLatest";
 
@@ -84,6 +85,16 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
             pedanticParens
           </button>
         </fieldset>
+        <button
+          onClick={(event) => {
+            event.preventDefault();
+            if (parsedExpr !== undefined) {
+              setInputValue(dicePrettyPrint(diceLangSimplify(parsedExpr)));
+            }
+          }}
+        >
+          simplify
+        </button>
         <noscript>
           <button>Compute</button>
         </noscript>

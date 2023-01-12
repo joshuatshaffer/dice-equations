@@ -12,6 +12,10 @@ export function diceLangSimplify(expr: Expression): Expression {
     right: diceLangSimplify(expr.right),
   };
 
+  if (expr.operator === "d" && expr.right === 1) {
+    return expr.left;
+  }
+
   if (typeof expr.left === "number" && typeof expr.right === "number") {
     switch (expr.operator) {
       case "+":
