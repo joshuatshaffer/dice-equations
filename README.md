@@ -11,6 +11,7 @@
 - Better error messages for invalid equations.
 - Simplify equations.
 - Investigate performance of calculations.
+- Helper for finding an equivalent dice roll to one that the user does not have the dice for.
 
 ## Related and Similar Projects
 
