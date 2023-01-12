@@ -23,50 +23,72 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
 
   return (
     <div>
-      <input
-        type="text"
-        name="p"
-        value={inputValue}
-        onChange={(event) => {
-          setInputValue(event.currentTarget.value);
-        }}
-      />
-      <pre>{JSON.stringify(parseResult)}</pre>
-      <button
-        type="button"
-        disabled={parsedExpr === undefined}
-        onClick={() => {
-          if (parsedExpr !== undefined) {
-            setInputValue(dicePrettyPrint(parsedExpr));
-          }
-        }}
-      >
-        pretty print
-      </button>{" "}
-      <button
-        type="button"
-        disabled={parsedExpr === undefined}
-        onClick={() => {
-          if (parsedExpr !== undefined) {
-            setInputValue(dicePrettyPrint(parsedExpr, { format: "min" }));
-          }
-        }}
-      >
-        minify
-      </button>{" "}
-      <button
-        type="button"
-        disabled={parsedExpr === undefined}
-        onClick={() => {
-          if (parsedExpr !== undefined) {
-            setInputValue(
-              dicePrettyPrint(parsedExpr, { format: "pedanticParens" })
-            );
-          }
-        }}
-      >
-        pedanticParens
-      </button>
+      <form>
+        <label htmlFor="dice-program-input">program</label>{" "}
+        <input
+          id="dice-program-input"
+          type="text"
+          name="p"
+          aria-invalid={!parseResult.status}
+          aria-describedby="dice-program-input-helper"
+          value={inputValue}
+          onChange={(event) => {
+            setInputValue(event.currentTarget.value);
+          }}
+        />
+        <div id="dice-program-input-helper">
+          {parseResult.status ? null : (
+            <>
+              Could not parse. <pre>{JSON.stringify(parseResult)}</pre>
+            </>
+          )}
+        </div>
+        <fieldset>
+          <legend>Reformat</legend>
+          <button
+            name="format"
+            value="pretty-print"
+            onClick={(event) => {
+              event.preventDefault();
+              if (parsedExpr !== undefined) {
+                setInputValue(dicePrettyPrint(parsedExpr));
+              }
+            }}
+          >
+            pretty print
+          </button>{" "}
+          <button
+            name="format"
+            value="minify"
+            onClick={(event) => {
+              event.preventDefault();
+              if (parsedExpr !== undefined) {
+                setInputValue(dicePrettyPrint(parsedExpr, { format: "min" }));
+              }
+            }}
+          >
+            minify
+          </button>{" "}
+          <button
+            name="format"
+            value="pedantic-parens"
+            onClick={(event) => {
+              event.preventDefault();
+              if (parsedExpr !== undefined) {
+                setInputValue(
+                  dicePrettyPrint(parsedExpr, { format: "pedanticParens" })
+                );
+              }
+            }}
+          >
+            pedanticParens
+          </button>
+        </fieldset>
+        <noscript>
+          <button>Compute</button>
+        </noscript>
+      </form>
+
       {parsedExpr ? (
         <CombGraph
           data={prob(parsedExpr)}
