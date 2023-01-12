@@ -6,12 +6,16 @@ interface Node {
   end: P.Index;
 }
 
-export type NumberLiteral = number;
-
-export interface BinaryOperation {
-  operator: "+" | "-" | "*" | "/" | "d";
-  left: DiceExpression;
-  right: DiceExpression;
+export interface NumberLiteral extends Node {
+  type: "NumberLiteral";
+  value: number;
 }
 
-export type DiceExpression = BinaryOperation | NumberLiteral;
+export interface BinaryOperation extends Node {
+  type: "BinaryOperation";
+  operator: "+" | "-" | "*" | "/" | "d";
+  left: Expression;
+  right: Expression;
+}
+
+export type Expression = BinaryOperation | NumberLiteral;

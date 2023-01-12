@@ -1,12 +1,8 @@
 import fc from "fast-check";
-import {
-  BinaryOperation,
-  DiceExpression,
-  NumberLiteral,
-} from "./dice-lang-ast";
+import { BinaryOperation, Expression, NumberLiteral } from "./dice-lang-ast";
 
 export const arbDiceExpression = fc.letrec<{
-  expr: DiceExpression;
+  expr: Expression;
   binaryOperation: BinaryOperation;
   numberLiteral: NumberLiteral;
 }>((tie) => ({

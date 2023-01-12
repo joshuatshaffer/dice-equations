@@ -1,14 +1,14 @@
 import P from "parsimmon";
-import { DiceExpression, NumberLiteral } from "./dice-lang-ast";
+import { Expression, NumberLiteral } from "./dice-lang-ast";
 
 interface DiceLanguage {
   _: string;
   __: string;
 
-  expr: DiceExpression;
-  term: DiceExpression;
-  factor: DiceExpression;
-  factor1: DiceExpression;
+  expr: Expression;
+  term: Expression;
+  factor: Expression;
+  factor1: Expression;
 
   numberLiteral: NumberLiteral;
 }

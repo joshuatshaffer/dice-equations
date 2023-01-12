@@ -1,7 +1,7 @@
-import { DiceExpression } from "./dice-lang-ast";
+import { Expression } from "./dice-lang-ast";
 
 // This is a work in progress.
-export function diceLangSimplify(expr: DiceExpression): DiceExpression {
+export function diceLangSimplify(expr: Expression): Expression {
   if (typeof expr === "number") {
     return expr;
   }

@@ -1,6 +1,6 @@
-import { DiceExpression } from "./dice-lang/dice-lang-ast";
+import { Expression } from "./dice-lang/dice-lang-ast";
 
-export function prob(diceExpr: DiceExpression): Map<number, number> {
+export function prob(diceExpr: Expression): Map<number, number> {
   if (typeof diceExpr === "number") {
     return new Map([[diceExpr, 1]]);
   }

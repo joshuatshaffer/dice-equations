@@ -1,4 +1,4 @@
-import { DiceExpression } from "./dice-lang-ast";
+import { Expression } from "./dice-lang-ast";
 
 interface DicePrintOptions {
   /**
@@ -8,7 +8,7 @@ interface DicePrintOptions {
 }
 
 export function dicePrettyPrint(
-  expr: DiceExpression,
+  expr: Expression,
   options?: DicePrintOptions
 ): string {
   if (typeof expr === "number") {
