@@ -6,7 +6,7 @@ describe("diceParser", () => {
   it("works", () => {
     expect(diceParser.parse("2d5")).toEqual<P.Success<DiceExpression>>({
       status: true,
-      value: { l: 2, op: "d", r: 5 },
+      value: { left: 2, operator: "d", right: 5 },
     });
   });
 });

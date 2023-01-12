@@ -12,9 +12,9 @@ export const arbDiceExpression = fc.letrec<{
 }>((tie) => ({
   expr: fc.oneof(tie("numberLiteral"), tie("binaryOperation")),
   binaryOperation: fc.record({
-    l: tie("expr"),
-    op: fc.constantFrom("+", "-", "*", "/", "d"),
-    r: tie("expr"),
+    left: tie("expr"),
+    operator: fc.constantFrom("+", "-", "*", "/", "d"),
+    right: tie("expr"),
   }),
   numberLiteral: fc.nat(),
 }));

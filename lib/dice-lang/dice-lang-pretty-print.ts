@@ -15,59 +15,63 @@ export function dicePrettyPrint(
     return expr.toString();
   }
 
-  let l = dicePrettyPrint(expr.l, options);
-  let r = dicePrettyPrint(expr.r, options);
-  const op = expr.op;
+  let left = dicePrettyPrint(expr.left, options);
+  let right = dicePrettyPrint(expr.right, options);
+  const operator = expr.operator;
 
   if (options?.format === "pedanticParens") {
-    return `(${l})${op}(${r})`;
+    return `(${left})${operator}(${right})`;
   }
 
-  if (expr.op === "d") {
-    if (typeof expr.l !== "number") {
-      l = `(${l})`;
-    } else if (expr.l === 1) {
-      l = "";
+  if (expr.operator === "d") {
+    if (typeof expr.left !== "number") {
+      left = `(${left})`;
+    } else if (expr.left === 1) {
+      left = "";
     }
 
-    if (typeof expr.r !== "number") {
-      r = `(${r})`;
+    if (typeof expr.right !== "number") {
+      right = `(${right})`;
     }
 
-    return `${l}${op}${r}`;
+    return `${left}${operator}${right}`;
   }
 
-  if (expr.op === "+" || expr.op === "-") {
+  if (expr.operator === "+" || expr.operator === "-") {
     if (
-      typeof expr.r !== "number" &&
-      (expr.r.op === "+" || expr.r.op === "-")
+      typeof expr.right !== "number" &&
+      (expr.right.operator === "+" || expr.right.operator === "-")
     ) {
-      r = `(${r})`;
+      right = `(${right})`;
     }
 
-    return options?.format === "min" ? `${l}${op}${r}` : `${l} ${op} ${r}`;
+    return options?.format === "min"
+      ? `${left}${operator}${right}`
+      : `${left} ${operator} ${right}`;
   }
 
-  if (expr.op === "*" || expr.op === "/") {
+  if (expr.operator === "*" || expr.operator === "/") {
     if (
-      typeof expr.l !== "number" &&
-      (expr.l.op === "+" || expr.l.op === "-")
+      typeof expr.left !== "number" &&
+      (expr.left.operator === "+" || expr.left.operator === "-")
     ) {
-      l = `(${l})`;
+      left = `(${left})`;
     }
 
     if (
-      typeof expr.r !== "number" &&
-      (expr.r.op === "+" ||
-        expr.r.op === "-" ||
-        expr.r.op === "/" ||
-        expr.r.op === "*")
+      typeof expr.right !== "number" &&
+      (expr.right.operator === "+" ||
+        expr.right.operator === "-" ||
+        expr.right.operator === "/" ||
+        expr.right.operator === "*")
     ) {
-      r = `(${r})`;
+      right = `(${right})`;
     }
 
-    return options?.format === "min" ? `${l}${op}${r}` : `${l} ${op} ${r}`;
+    return options?.format === "min"
+      ? `${left}${operator}${right}`
+      : `${left} ${operator} ${right}`;
   }
 
-  return `(${l}) ${op} (${r})`;
+  return `(${left}) ${operator} (${right})`;
 }

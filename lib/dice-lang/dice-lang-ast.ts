@@ -9,9 +9,9 @@ interface Node {
 export type NumberLiteral = number;
 
 export interface BinaryOperation {
-  op: "+" | "-" | "*" | "/" | "d";
-  l: DiceExpression;
-  r: DiceExpression;
+  operator: "+" | "-" | "*" | "/" | "d";
+  left: DiceExpression;
+  right: DiceExpression;
 }
 
 export type DiceExpression = BinaryOperation | NumberLiteral;

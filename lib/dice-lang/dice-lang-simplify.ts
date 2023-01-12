@@ -8,38 +8,42 @@ export function diceLangSimplify(expr: DiceExpression): DiceExpression {
 
   expr = {
     ...expr,
-    l: diceLangSimplify(expr.l),
-    r: diceLangSimplify(expr.r),
+    left: diceLangSimplify(expr.left),
+    right: diceLangSimplify(expr.right),
   };
 
-  if (typeof expr.l === "number" && typeof expr.r === "number") {
-    switch (expr.op) {
+  if (typeof expr.left === "number" && typeof expr.right === "number") {
+    switch (expr.operator) {
       case "+":
-        return expr.l + expr.r;
+        return expr.left + expr.right;
       case "-":
-        return expr.l - expr.r;
+        return expr.left - expr.right;
       case "*":
-        return expr.l * expr.r;
+        return expr.left * expr.right;
       case "/":
         // TODO: Don't do this if the fraction is cleaner.
-        return expr.l / expr.r;
+        return expr.left / expr.right;
     }
   }
 
-  if (expr.op === "+") {
+  if (expr.operator === "+") {
     if (
-      typeof expr.l !== "number" &&
-      expr.l.op === "d" &&
-      typeof expr.r !== "number" &&
-      expr.r.op === "d" &&
-      typeof expr.l.r === "number" &&
-      typeof expr.r.r === "number" &&
-      expr.l.r === expr.r.r
+      typeof expr.left !== "number" &&
+      expr.left.operator === "d" &&
+      typeof expr.right !== "number" &&
+      expr.right.operator === "d" &&
+      typeof expr.left.right === "number" &&
+      typeof expr.right.right === "number" &&
+      expr.left.right === expr.right.right
     ) {
       return {
-        l: diceLangSimplify({ l: expr.l.l, op: "+", r: expr.r.l }),
-        op: "d",
-        r: expr.r.r,
+        left: diceLangSimplify({
+          left: expr.left.left,
+          operator: "+",
+          right: expr.right.left,
+        }),
+        operator: "d",
+        right: expr.right.right,
       };
     }
   }

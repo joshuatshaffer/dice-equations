@@ -24,11 +24,16 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
 
   factor1: (r) =>
     P.alt(
-      P.seqMap(r.factor, P.string("d").trim(r._), r.factor, (l, op, r) => {
-        return { l, op, r };
-      }),
-      P.seqMap(P.string("d").trim(r._), r.factor, (op, r) => {
-        return { l: 1, op, r };
+      P.seqMap(
+        r.factor,
+        P.string("d").trim(r._),
+        r.factor,
+        (left, operator, right) => {
+          return { left, operator, right };
+        }
+      ),
+      P.seqMap(P.string("d").trim(r._), r.factor, (operator, right) => {
+        return { left: 1, operator, right };
       }),
       r.factor
     ),
@@ -37,14 +42,22 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
     P.seqMap(
       r.factor1,
       P.seq(P.alt(P.string("*"), P.string("/")).trim(r._), r.factor1).many(),
-      (first, rest) => rest.reduce((l, [op, r]) => ({ l, op, r }), first)
+      (first, rest) =>
+        rest.reduce(
+          (left, [operator, right]) => ({ left, operator, right }),
+          first
+        )
     ),
 
   expr: (r) =>
     P.seqMap(
       r.term,
       P.seq(P.alt(P.string("+"), P.string("-")).trim(r._), r.term).many(),
-      (first, rest) => rest.reduce((l, [op, r]) => ({ l, op, r }), first)
+      (first, rest) =>
+        rest.reduce(
+          (left, [operator, right]) => ({ left, operator, right }),
+          first
+        )
     ).trim(r._),
 });
 

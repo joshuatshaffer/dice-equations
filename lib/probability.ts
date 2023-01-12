@@ -5,17 +5,17 @@ export function prob(diceExpr: DiceExpression): Map<number, number> {
     return new Map([[diceExpr, 1]]);
   }
 
-  const l = prob(diceExpr.l);
-  const r = prob(diceExpr.r);
-  const op = diceExpr.op;
+  const left = prob(diceExpr.left);
+  const right = prob(diceExpr.right);
+  const operator = diceExpr.operator;
 
-  if (op === "d") {
-    const s = snorg(r, (s) => dice(s));
-    return snorg(l, (lv) => plorg(lv, s));
+  if (operator === "d") {
+    const s = snorg(right, (s) => dice(s));
+    return snorg(left, (lv) => plorg(lv, s));
   }
 
-  return corg(l, r, function (lv, rv) {
-    switch (op) {
+  return corg(left, right, function (lv, rv) {
+    switch (operator) {
       case "+":
         return lv + rv;
       case "-":
