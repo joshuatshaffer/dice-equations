@@ -1,5 +1,5 @@
 import P from "parsimmon";
-import { DiceExpression } from "./dice-lang-ast";
+import { DiceExpression, NumberLiteral } from "./dice-lang-ast";
 
 interface DiceLanguage {
   _: string;
@@ -10,7 +10,7 @@ interface DiceLanguage {
   factor: DiceExpression;
   factor1: DiceExpression;
 
-  numberLiteral: number;
+  numberLiteral: NumberLiteral;
 }
 
 const diceLanguage = P.createLanguage<DiceLanguage>({
