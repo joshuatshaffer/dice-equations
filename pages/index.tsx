@@ -1,8 +1,5 @@
-import { Inter } from "@next/font/google";
 import Head from "next/head";
-import { DiceAstForm } from "../lib/DiceAstForm";
-
-const inter = Inter({ subsets: ["latin"] });
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -14,7 +11,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <DiceAstForm />
+        <Link href="/dice">Dice</Link>
       </main>
     </>
   );

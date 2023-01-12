@@ -1,33 +1,15 @@
 import { useRouter } from "next/router";
-import { FC, useEffect, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { CombGraph } from "./CombGraph";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { prob } from "./probability";
+import { useLatest } from "./useLatest";
 
-// the largest value k such that for all x in xs, x = k*n+min(xs)
-
-function firstValue(x: string | string[] | undefined): string | undefined {
-  if (Array.isArray(x)) return x[0];
-  return x;
-}
-
-function useLatest<T>(x: T, initialValue = x): T {
-  const latestRef = useRef(initialValue);
-
-  if (x !== undefined) {
-    latestRef.current = x;
-  }
-
-  return latestRef.current;
-}
-
-export const DiceAstForm: FC = () => {
+export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
   const router = useRouter();
 
-  const [inputValue, setInputValue] = useState<string>(
-    firstValue(router.query.p) || "2d6 + 5"
-  );
+  const [inputValue, setInputValue] = useState<string>(p);
 
   useEffect(() => {
     router.replace({ query: { ...router.query, p: inputValue } });
