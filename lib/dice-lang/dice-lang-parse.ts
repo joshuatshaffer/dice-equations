@@ -17,7 +17,10 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
   _: () => P.optWhitespace,
   __: () => P.whitespace,
 
-  numberLiteral: () => P.regexp(/[+-]?([0-9]*\.)?[0-9]+/).map(Number),
+  numberLiteral: () =>
+    P.regexp(/[+-]?([0-9]*\.)?[0-9]+/)
+      .map(Number)
+      .desc("number"),
 
   factor: (r) =>
     P.alt(r.expr.wrap(P.string("("), P.string(")")), r.numberLiteral),
