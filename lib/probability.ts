@@ -55,11 +55,22 @@ function corg(
   return m;
 }
 
-function flatMap(
-  x: Map<number, number>,
-  f: (x: number) => Map<number, number>
-): Map<number, number> {
-  const m = new Map<number, number>();
+function map<T, U>(x: Map<T, number>, f: (x: T) => U): Map<U, number> {
+  const m = new Map<U, number>();
+
+  for (const [xv, xp] of x.entries()) {
+    const yv = f(xv);
+    m.set(yv, (m.get(yv) ?? 0) + xp);
+  }
+
+  return m;
+}
+
+function flatMap<T, U>(
+  x: Map<T, number>,
+  f: (x: T) => Map<U, number>
+): Map<U, number> {
+  const m = new Map<U, number>();
 
   for (const [xv, xp] of x.entries()) {
     for (const [yv, yp] of f(xv).entries()) {
