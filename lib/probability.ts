@@ -10,8 +10,8 @@ export function prob(diceExpr: Expression): Map<number, number> {
   const operator = diceExpr.operator;
 
   if (operator === "d") {
-    const s = snorg(right, (s) => dice(s));
-    return snorg(left, (lv) => plorg(lv, s));
+    const s = flatMap(right, (s) => dice(s));
+    return flatMap(left, (lv) => plorg(lv, s));
   }
 
   return corg(left, right, function (lv, rv) {
@@ -55,7 +55,7 @@ function corg(
   return m;
 }
 
-function snorg(
+function flatMap(
   x: Map<number, number>,
   f: (x: number) => Map<number, number>
 ): Map<number, number> {
