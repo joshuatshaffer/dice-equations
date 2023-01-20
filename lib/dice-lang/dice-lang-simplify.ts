@@ -1,4 +1,5 @@
 import { reduceFraction } from "../math-helpers";
+import { b, op } from "../pattern";
 import { Expression } from "./dice-lang-ast";
 
 // This is a work in progress.
@@ -66,6 +67,13 @@ export function diceLangSimplify(expr: Expression): Expression {
       };
     }
   }
+
+  // x*(y*z) -> x*y*z
+  const rule = {
+    pattern: op(b("x"), "*", op(b("y"), "*", b("z"))),
+    replace: ({ x, y, z }) => [[x, "*", y], "*", z],
+    replace2: ({ x, y, z }) => op(op(x, "*", y), "*", z),
+  };
 
   if (expr.operator === "*") {
     if (typeof expr.right !== "number" && expr.right.operator === "*") {
