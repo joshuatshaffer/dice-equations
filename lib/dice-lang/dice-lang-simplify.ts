@@ -25,8 +25,14 @@ export function diceLangSimplify(expr: Expression): Expression {
       case "*":
         return expr.left * expr.right;
       case "/":
-        // TODO: Don't do this if the fraction is cleaner.
-        return expr.left / expr.right;
+        if (!Number.isInteger(expr.left) || !Number.isInteger(expr.right)) {
+          return expr.left / expr.right;
+        }
+        const [n, d] = reduceFraction(expr.left, expr.right);
+        if (d === 1) {
+          return n;
+        }
+        return { left: n, operator: "/", right: d };
     }
   }
 
@@ -60,4 +66,9 @@ function gcd(a: number, b: number): number {
     [a, b] = [b, a % b];
   }
   return a;
+}
+
+function reduceFraction(n: number, d: number) {
+  const f = gcd(n, d);
+  return [n / f, d / f] as const;
 }
