@@ -2,9 +2,9 @@ import { BinaryOperation, Expression } from "./dice-lang/dice-lang-ast";
 
 type Simplify<T> = T extends unknown ? { [P in keyof T]: T[P] } & {} : never;
 
-type Bindings = Record<string, unknown>;
+export type Bindings = Record<string, unknown>;
 
-class Pattern<I, O extends I, B extends Bindings> {
+export class Pattern<I, O extends I, B extends Bindings> {
   constructor(public readonly match: (i: I) => B | undefined) {}
 
   test(i: I): i is O {
@@ -69,3 +69,26 @@ export function op<LB extends Bindings, RB extends Bindings>(
     return { ...lm, ...rm };
   });
 }
+
+interface Rule<B extends Bindings = Bindings> {
+  pattern: Pattern<Expression, Expression, B>;
+  replace: (Bindings: B) => Expression;
+}
+
+function rule<B extends Bindings>(
+  pattern: Pattern<Expression, Expression, B>,
+  replace: (Bindings: B) => Expression
+) {
+  return {
+    pattern,
+    replace,
+  };
+}
+
+// x*(y*z) -> x*y*z
+//:Rule<{x:Expression, y:Expression,z:Expression}>
+const rules = rule(op(b("x"), "*", op(b("y"), "*", b("z"))), ({ x, y, z }) => ({
+  left: { left: x, operator: "*", right: y },
+  operator: "*",
+  right: z,
+}));
