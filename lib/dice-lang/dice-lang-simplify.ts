@@ -1,3 +1,4 @@
+import { reduceFraction } from "../math-helpers";
 import { Expression } from "./dice-lang-ast";
 
 // This is a work in progress.
@@ -59,16 +60,4 @@ export function diceLangSimplify(expr: Expression): Expression {
   }
 
   return expr;
-}
-
-function gcd(a: number, b: number): number {
-  while (b) {
-    [a, b] = [b, a % b];
-  }
-  return a;
-}
-
-function reduceFraction(n: number, d: number) {
-  const f = gcd(n, d);
-  return [n / f, d / f] as const;
 }
