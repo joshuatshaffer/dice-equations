@@ -38,6 +38,14 @@ export function diceLangSimplify(expr: Expression): Expression {
   }
 
   if (expr.operator === "+") {
+    if (typeof expr.right !== "number" && expr.right.operator === "+") {
+      return {
+        left: { left: expr.left, operator: "+", right: expr.right.left },
+        operator: "+",
+        right: expr.right.right,
+      };
+    }
+
     if (
       typeof expr.left !== "number" &&
       expr.left.operator === "d" &&
@@ -54,6 +62,16 @@ export function diceLangSimplify(expr: Expression): Expression {
           right: expr.right.left,
         }),
         operator: "d",
+        right: expr.right.right,
+      };
+    }
+  }
+
+  if (expr.operator === "*") {
+    if (typeof expr.right !== "number" && expr.right.operator === "*") {
+      return {
+        left: { left: expr.left, operator: "*", right: expr.right.left },
+        operator: "*",
         right: expr.right.right,
       };
     }
