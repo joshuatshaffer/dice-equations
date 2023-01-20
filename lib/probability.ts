@@ -1,6 +1,6 @@
 import { Expression } from "./dice-lang/dice-lang-ast";
 
-export function prob(diceExpr: Expression): Map<number, number> {
+export function prob(diceExpr: Expression): Prob<number> {
   if (typeof diceExpr === "number") {
     return new Map([[diceExpr, 1]]);
   }
@@ -28,7 +28,7 @@ export function prob(diceExpr: Expression): Map<number, number> {
   });
 }
 
-function dice(sides: number): Map<number, number> {
+function dice(sides: number): Prob<number> {
   return new Map(
     (function* () {
       for (let i = 1; i <= sides; ++i) {
@@ -38,12 +38,8 @@ function dice(sides: number): Map<number, number> {
   );
 }
 
-function corg(
-  x: Map<number, number>,
-  y: Map<number, number>,
-  f: (x: number, y: number) => number
-): Map<number, number> {
-  const m = new Map<number, number>();
+function corg<T, U, V>(x: Prob<T>, y: Prob<U>, f: (x: T, y: U) => V): Prob<V> {
+  const m = new Map<V, number>();
 
   for (const [lv, lp] of x.entries()) {
     for (const [rv, rp] of y.entries()) {
@@ -55,7 +51,7 @@ function corg(
   return m;
 }
 
-function map<T, U>(x: Map<T, number>, f: (x: T) => U): Map<U, number> {
+function map<T, U>(x: Prob<T>, f: (x: T) => U): Prob<U> {
   const m = new Map<U, number>();
 
   for (const [xv, xp] of x.entries()) {
@@ -66,10 +62,7 @@ function map<T, U>(x: Map<T, number>, f: (x: T) => U): Map<U, number> {
   return m;
 }
 
-function flatMap<T, U>(
-  x: Map<T, number>,
-  f: (x: T) => Map<U, number>
-): Map<U, number> {
+function flatMap<T, U>(x: Prob<T>, f: (x: T) => Prob<U>): Prob<U> {
   const m = new Map<U, number>();
 
   for (const [xv, xp] of x.entries()) {
@@ -81,7 +74,7 @@ function flatMap<T, U>(
   return m;
 }
 
-function plorg(times: number, x: Map<number, number>): Map<number, number> {
+function plorg(times: number, x: Prob<number>): Prob<number> {
   let m = new Map<number, number>(x);
 
   for (let i = 1; i < times; ++i) {
@@ -90,3 +83,5 @@ function plorg(times: number, x: Map<number, number>): Map<number, number> {
 
   return m;
 }
+
+type Prob<T> = Map<T, number>;
