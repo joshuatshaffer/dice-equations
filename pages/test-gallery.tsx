@@ -26,6 +26,8 @@ export default function TestGallery() {
             <Row equation="1-2" />
             <Row equation="2*3" />
             <Row equation="3/8" />
+            <Row equation="d(d5)" />
+            <Row equation="d(2/d5)" />
           </tbody>
         </table>
       </main>
