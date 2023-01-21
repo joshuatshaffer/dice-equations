@@ -1,126 +1,87 @@
+import isEqual from "lodash/isEqual";
+import { match, P } from "ts-pattern";
 import { reduceFraction } from "../math-helpers";
-import { Expression } from "./dice-lang-ast";
+import {
+  add,
+  bo,
+  cx,
+  dice,
+  div,
+  Expression,
+  mul,
+  n,
+  uo,
+} from "./dice-lang-ast";
 
 // This is a work in progress.
 export function diceLangSimplify(expr: Expression): Expression {
-  if (expr.type === "NumberLiteral") {
-    return expr;
-  }
+  let newExpr = expr;
+  let oldExpr = expr;
 
-  if (expr.type !== "BinaryOperation") {
-    throw new Error("TODO: support " + expr.type);
-  }
+  do {
+    [oldExpr, newExpr] = [newExpr, replacements(newExpr)];
+  } while (!isEqual(newExpr, oldExpr));
 
-  expr = {
-    ...expr,
-    left: diceLangSimplify(expr.left),
-    right: diceLangSimplify(expr.right),
-  };
-
-  if (
-    expr.operator === "d" &&
-    expr.right.type === "NumberLiteral" &&
-    expr.right.value === 1
-  ) {
-    return expr.left;
-  }
-
-  if (
-    expr.left.type === "NumberLiteral" &&
-    expr.right.type === "NumberLiteral"
-  ) {
-    switch (expr.operator) {
-      case "+":
-        return {
-          type: "NumberLiteral",
-          value: expr.left.value + expr.right.value,
-        };
-      case "-":
-        return {
-          type: "NumberLiteral",
-          value: expr.left.value - expr.right.value,
-        };
-      case "*":
-        return {
-          type: "NumberLiteral",
-          value: expr.left.value * expr.right.value,
-        };
-      case "/":
-        if (
-          !Number.isInteger(expr.left.value) ||
-          !Number.isInteger(expr.right.value)
-        ) {
-          return {
-            type: "NumberLiteral",
-            value: expr.left.value / expr.right.value,
-          };
-        }
-        const [n, d] = reduceFraction(expr.left.value, expr.right.value);
-        if (d === 1) {
-          return { type: "NumberLiteral", value: n };
-        }
-        return {
-          type: "BinaryOperation",
-          left: { type: "NumberLiteral", value: n },
-          operator: "/",
-          right: { type: "NumberLiteral", value: d },
-        };
-    }
-  }
-
-  if (expr.operator === "+") {
-    if (expr.right.type === "BinaryOperation" && expr.right.operator === "+") {
-      return {
-        type: "BinaryOperation",
-        left: {
-          type: "BinaryOperation",
-          left: expr.left,
-          operator: "+",
-          right: expr.right.left,
-        },
-        operator: "+",
-        right: expr.right.right,
-      };
-    }
-
-    if (
-      expr.left.type === "BinaryOperation" &&
-      expr.left.operator === "d" &&
-      expr.right.type === "BinaryOperation" &&
-      expr.right.operator === "d" &&
-      expr.left.right.type === "NumberLiteral" &&
-      expr.right.right.type === "NumberLiteral" &&
-      expr.left.right === expr.right.right
-    ) {
-      return {
-        type: "BinaryOperation",
-        left: diceLangSimplify({
-          type: "BinaryOperation",
-          left: expr.left.left,
-          operator: "+",
-          right: expr.right.left,
-        }),
-        operator: "d",
-        right: expr.right.right,
-      };
-    }
-  }
-
-  if (expr.operator === "*") {
-    if (expr.right.type === "BinaryOperation" && expr.right.operator === "*") {
-      return {
-        type: "BinaryOperation",
-        left: {
-          type: "BinaryOperation",
-          left: expr.left,
-          operator: "*",
-          right: expr.right.left,
-        },
-        operator: "*",
-        right: expr.right.right,
-      };
-    }
-  }
-
-  return expr;
+  return newExpr;
 }
+
+const replacements = (expr: Expression) =>
+  match(expr)
+    .with(
+      add(P.select("x"), add(P.select("y"), P.select("z"))),
+      ({ x, y, z }): Expression => add(add(x, y), z)
+    )
+    .with(
+      mul(P.select("x"), mul(P.select("y"), P.select("z"))),
+      ({ x, y, z }): Expression => mul(mul(x, y), z)
+    )
+    .with(
+      P.select(
+        "original",
+        add(
+          dice(P.select("x0"), n(P.select("y0"))),
+          dice(P.select("x1"), n(P.select("y1")))
+        )
+      ),
+      ({ original, x0, y0, x1, y1 }): Expression =>
+        y0 === y1 ? dice(add(x0, x1), n(y0)) : original
+    )
+    .with(
+      P.select(
+        "original",
+        bo(n(P.select("x")), P.select("o"), n(P.select("y")))
+      ),
+      ({ original, x, o, y }): Expression => {
+        switch (o) {
+          case "+":
+            return n(x + y);
+          case "-":
+            return n(x - y);
+          case "*":
+            return n(x * y);
+          case "/": {
+            if (Number.isInteger(x) && Number.isInteger(y)) {
+              const [x1, y1] = reduceFraction(x, y);
+              return y1 === 1 ? n(x1) : div(n(x1), n(y1));
+            }
+            return n(x / y);
+          }
+          default:
+            return original;
+        }
+      }
+    )
+    .with(
+      uo(P.select("o"), P.select("x")),
+      ({ o, x }): Expression => uo(o, diceLangSimplify(x))
+    )
+    .with(
+      bo(P.select("x"), P.select("o"), P.select("y")),
+      ({ x, o, y }): Expression =>
+        bo(diceLangSimplify(x), o, diceLangSimplify(y))
+    )
+    .with(
+      cx(P.select("f"), P.select("args")),
+      ({ f, args }): Expression => cx(f, args.map(diceLangSimplify))
+    )
+    .otherwise((x) => x);
