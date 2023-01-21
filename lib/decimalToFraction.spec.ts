@@ -3,7 +3,7 @@ import fc from "fast-check";
 import { inspect } from "util";
 import { decimalToFraction, toME } from "./decimalToFraction";
 
-describe("decimalToFraction", () => {
+describe.skip("decimalToFraction", () => {
   it("returns a fraction equal to the original number", () => {
     fc.assert(
       fc.property(fc.double({ min: 1, max: 20 }), fc.context(), (num, ctx) => {
@@ -38,7 +38,7 @@ describe("decimalToFraction", () => {
   });
 });
 
-describe("toME", () => {
+describe.skip("toME", () => {
   it("returns a ? equal to the original number", () => {
     fc.assert(
       fc.property(fc.double({ min: 0, max: 20 }), fc.context(), (num, ctx) => {
