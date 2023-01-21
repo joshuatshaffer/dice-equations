@@ -15,4 +15,24 @@ describe("dicePrettyPrint", () => {
       })
     );
   });
+
+  it("Minifying and re-parsing does not change the AST", () => {
+    fc.assert(
+      fc.property(arbDiceExpression.expr, (expr) => {
+        expect(
+          diceParser.parse(dicePrettyPrint(expr, { format: "min" }))
+        ).toEqual<P.Success<Expression>>({ status: true, value: expr });
+      })
+    );
+  });
+
+  it("Printing with pedantic parens and re-parsing does not change the AST", () => {
+    fc.assert(
+      fc.property(arbDiceExpression.expr, (expr) => {
+        expect(
+          diceParser.parse(dicePrettyPrint(expr, { format: "pedanticParens" }))
+        ).toEqual<P.Success<Expression>>({ status: true, value: expr });
+      })
+    );
+  });
 });

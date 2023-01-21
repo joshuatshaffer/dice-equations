@@ -33,30 +33,13 @@ function _dicePrettyPrint(
 
   let left = _dicePrettyPrint(expr.left, options);
   let right = _dicePrettyPrint(expr.right, options);
-  const operator = expr.operator;
 
   if (options?.format === "pedanticParens") {
-    return `${p(left)}${operator}${p(right)}`;
+    return `${p(left)}${expr.operator}${p(right)}`;
   }
 
   if (options?.format === "MathML" && expr.operator === "/") {
     return `<mfrac><mrow>${left}</mrow><mrow>${right}</mrow></mfrac>`;
-  }
-
-  if (expr.operator === "d") {
-    if (typeof expr.left !== "number") {
-      left = p(left);
-    } else if (expr.left === 1) {
-      left = "";
-    }
-
-    if (typeof expr.right !== "number") {
-      right = p(right);
-    }
-
-    return options?.format === "MathML"
-      ? `${left}<ms>${operator}</ms>${right}`
-      : `${left}${operator}${right}`;
   }
 
   if (expr.operator === "+" || expr.operator === "-") {
@@ -66,15 +49,7 @@ function _dicePrettyPrint(
     ) {
       right = p(right);
     }
-
-    return options?.format === "MathML"
-      ? `${left}<mo>${operator}</mo>${right}`
-      : options?.format === "min"
-      ? `${left}${operator}${right}`
-      : `${left} ${operator} ${right}`;
-  }
-
-  if (expr.operator === "*" || expr.operator === "/") {
+  } else if (expr.operator === "*" || expr.operator === "/") {
     if (
       typeof expr.left !== "number" &&
       (expr.left.operator === "+" || expr.left.operator === "-")
@@ -91,13 +66,28 @@ function _dicePrettyPrint(
     ) {
       right = p(right);
     }
+  } else if (expr.operator === "d") {
+    if (typeof expr.left !== "number") {
+      left = p(left);
+    } else if (expr.left === 1) {
+      left = "";
+    }
 
-    return options?.format === "MathML"
-      ? `${left}<mo>${operator === "*" ? "&sdot;" : operator}</mo>${right}`
-      : options?.format === "min"
-      ? `${left}${operator}${right}`
-      : `${left} ${operator} ${right}`;
+    if (typeof expr.right !== "number") {
+      right = p(right);
+    }
+  } else {
+    left = p(left);
+    right = p(right);
   }
 
-  return `${p(left)} ${operator} ${p(right)}`;
+  return options?.format === "MathML"
+    ? expr.operator === "d"
+      ? `${left}<ms>d</ms>${right}`
+      : `${left}<mo>${
+          expr.operator === "*" ? "&sdot;" : expr.operator
+        }</mo>${right}`
+    : options?.format === "min" || expr.operator === "d"
+    ? `${left}${expr.operator}${right}`
+    : `${left} ${expr.operator} ${right}`;
 }
