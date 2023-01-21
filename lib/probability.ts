@@ -2,7 +2,7 @@ import { Expression } from "./dice-lang/dice-lang-ast";
 
 export function prob(diceExpr: Expression): Prob<number> {
   if (typeof diceExpr === "number") {
-    return new Prob([[diceExpr, 1]]);
+    return Prob.unit(diceExpr);
   }
 
   const left = prob(diceExpr.left);
@@ -31,7 +31,7 @@ export function prob(diceExpr: Expression): Prob<number> {
 
 function singleDie(sides: number) {
   if (sides < 1) {
-    return new Prob([[NaN, 1]]);
+    return Prob.unit(NaN);
   }
 
   const b = new ProbBuilder<number>();
@@ -50,7 +50,7 @@ function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
 
 function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
   if (times < 1) {
-    return new Prob([[NaN, 1]]);
+    return Prob.unit(NaN);
   }
 
   let m = x;
@@ -93,6 +93,10 @@ class Prob<T> implements Iterable<[T, number]> {
     }
 
     return b.build();
+  }
+
+  static unit<T>(event: T) {
+    return new Prob([[event, 1]]);
   }
 }
 
