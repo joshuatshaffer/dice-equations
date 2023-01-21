@@ -13,21 +13,27 @@ export function prob(diceExpr: Expression): Prob<number> {
     return dice(left, right);
   }
 
-  return left.cross(right).map(([x, y]) => {
-    switch (operator) {
-      case "+":
-        return x + y;
-      case "-":
-        return x - y;
-      case "*":
-        return x * y;
-      case "/":
-        return x / y;
-    }
-  });
+  return left.flatMap((x) =>
+    right.map((y) => {
+      switch (operator) {
+        case "+":
+          return x + y;
+        case "-":
+          return x - y;
+        case "*":
+          return x * y;
+        case "/":
+          return x / y;
+      }
+    })
+  );
 }
 
 function singleDie(sides: number) {
+  if (sides < 1) {
+    return new Prob([[NaN, 1]]);
+  }
+
   const b = new ProbBuilder<number>();
 
   for (let i = 1; i <= sides; ++i) {
@@ -43,10 +49,14 @@ function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
 }
 
 function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
+  if (times < 1) {
+    return new Prob([[NaN, 1]]);
+  }
+
   let m = x;
 
   for (let i = 1; i < times; ++i) {
-    m = m.cross(x).map(([w, z]) => w + z);
+    m = m.flatMap((w) => x.map((z) => w + z));
   }
 
   return m;
@@ -83,10 +93,6 @@ class Prob<T> implements Iterable<[T, number]> {
     }
 
     return b.build();
-  }
-
-  cross<U>(ys: Prob<U>): Prob<[T, U]> {
-    return this.flatMap((x) => ys.map((y) => [x, y]));
   }
 }
 
