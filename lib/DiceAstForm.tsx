@@ -102,7 +102,7 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
 
       {parsedExpr ? (
         <CombGraph
-          data={prob(parsedExpr)}
+          data={new Map(prob(parsedExpr))}
           width={800}
           height={600}
           padding={10}
@@ -111,7 +111,7 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
       {parsedExpr ? (
         <table>
           <tbody>
-            {[...prob(parsedExpr).entries()]
+            {[...prob(parsedExpr)]
               .sort(([a], [b]) => a - b)
               .map(([k, v]) => (
                 <tr key={k}>

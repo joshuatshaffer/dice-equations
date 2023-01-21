@@ -2,7 +2,7 @@ import { Expression } from "./dice-lang/dice-lang-ast";
 
 export function prob(diceExpr: Expression): Prob<number> {
   if (typeof diceExpr === "number") {
-    return new Map([[diceExpr, 1]]);
+    return new Prob([[diceExpr, 1]]);
   }
 
   const left = prob(diceExpr.left);
@@ -10,78 +10,94 @@ export function prob(diceExpr: Expression): Prob<number> {
   const operator = diceExpr.operator;
 
   if (operator === "d") {
-    const s = flatMap(right, (s) => dice(s));
-    return flatMap(left, (lv) => plorg(lv, s));
+    return dice(left, right);
   }
 
-  return corg(left, right, function (lv, rv) {
+  return left.cross(right).map(([x, y]) => {
     switch (operator) {
       case "+":
-        return lv + rv;
+        return x + y;
       case "-":
-        return lv - rv;
+        return x - y;
       case "*":
-        return lv * rv;
+        return x * y;
       case "/":
-        return lv / rv;
+        return x / y;
     }
   });
 }
 
-function dice(sides: number): Prob<number> {
-  return new Map(
-    (function* () {
-      for (let i = 1; i <= sides; ++i) {
-        yield [i, 1 / sides];
-      }
-    })()
-  );
-}
+function singleDie(sides: number) {
+  const b = new ProbBuilder<number>();
 
-function corg<T, U, V>(x: Prob<T>, y: Prob<U>, f: (x: T, y: U) => V): Prob<V> {
-  const m = new Map<V, number>();
-
-  for (const [lv, lp] of x.entries()) {
-    for (const [rv, rp] of y.entries()) {
-      const g = f(lv, rv);
-      m.set(g, (m.get(g) ?? 0) + lp * rp);
-    }
+  for (let i = 1; i <= sides; ++i) {
+    b.add(i, 1 / sides);
   }
 
-  return m;
+  return b.build();
 }
 
-function map<T, U>(x: Prob<T>, f: (x: T) => U): Prob<U> {
-  const m = new Map<U, number>();
-
-  for (const [xv, xp] of x.entries()) {
-    const yv = f(xv);
-    m.set(yv, (m.get(yv) ?? 0) + xp);
-  }
-
-  return m;
+function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
+  const d = sides.flatMap((s) => singleDie(s));
+  return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
 }
 
-function flatMap<T, U>(x: Prob<T>, f: (x: T) => Prob<U>): Prob<U> {
-  const m = new Map<U, number>();
-
-  for (const [xv, xp] of x.entries()) {
-    for (const [yv, yp] of f(xv).entries()) {
-      m.set(yv, (m.get(yv) ?? 0) + xp * yp);
-    }
-  }
-
-  return m;
-}
-
-function plorg(times: number, x: Prob<number>): Prob<number> {
-  let m = new Map<number, number>(x);
+function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
+  let m = x;
 
   for (let i = 1; i < times; ++i) {
-    m = corg(m, x, (w, z) => w + z);
+    m = m.cross(x).map(([w, z]) => w + z);
   }
 
   return m;
 }
 
-type Prob<T> = Map<T, number>;
+class Prob<T> implements Iterable<[T, number]> {
+  private readonly m: ReadonlyMap<T, number>;
+
+  constructor(iterable: Iterable<readonly [T, number]>) {
+    this.m = iterable instanceof Map ? iterable : new Map<T, number>(iterable);
+  }
+
+  [Symbol.iterator](): Iterator<[T, number]> {
+    return this.m.entries();
+  }
+
+  map<U>(f: (x: T) => U): Prob<U> {
+    const b = new ProbBuilder<U>();
+
+    for (const [x, p] of this) {
+      b.add(f(x), p);
+    }
+
+    return b.build();
+  }
+
+  flatMap<U>(f: (x: T) => Prob<U>): Prob<U> {
+    const b = new ProbBuilder<U>();
+
+    for (const [x, xp] of this) {
+      for (const [y, yp] of f(x)) {
+        b.add(y, xp * yp);
+      }
+    }
+
+    return b.build();
+  }
+
+  cross<U>(ys: Prob<U>): Prob<[T, U]> {
+    return this.flatMap((x) => ys.map((y) => [x, y]));
+  }
+}
+
+class ProbBuilder<T> {
+  private readonly m = new Map<T, number>();
+
+  add(event: T, probability: number) {
+    this.m.set(event, (this.m.get(event) ?? 0) + probability);
+  }
+
+  build() {
+    return new Prob(this.m);
+  }
+}
