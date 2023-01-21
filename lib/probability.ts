@@ -1,8 +1,12 @@
 import { Expression } from "./dice-lang/dice-lang-ast";
 
 export function prob(diceExpr: Expression): Prob<number> {
-  if (typeof diceExpr === "number") {
-    return Prob.unit(diceExpr);
+  if (diceExpr.type === "NumberLiteral") {
+    return Prob.unit(diceExpr.value);
+  }
+
+  if (diceExpr.type !== "BinaryOperation") {
+    throw new Error("TODO: support " + diceExpr.type);
   }
 
   const left = prob(diceExpr.left);

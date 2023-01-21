@@ -27,8 +27,14 @@ function _dicePrettyPrint(
   const p = (x: string) =>
     options?.format === "MathML" ? `<mo>(</mo>${x}<mo>)</mo>` : `(${x})`;
 
-  if (typeof expr === "number") {
-    return options?.format === "MathML" ? `<mn>${expr}</mn>` : expr.toString();
+  if (expr.type === "NumberLiteral") {
+    return options?.format === "MathML"
+      ? `<mn>${expr.value}</mn>`
+      : expr.value.toString();
+  }
+
+  if (expr.type !== "BinaryOperation") {
+    throw new Error("TODO: support " + expr.type);
   }
 
   let left = _dicePrettyPrint(expr.left, options);
@@ -44,21 +50,21 @@ function _dicePrettyPrint(
 
   if (expr.operator === "+" || expr.operator === "-") {
     if (
-      typeof expr.right !== "number" &&
+      expr.right.type === "BinaryOperation" &&
       (expr.right.operator === "+" || expr.right.operator === "-")
     ) {
       right = p(right);
     }
   } else if (expr.operator === "*" || expr.operator === "/") {
     if (
-      typeof expr.left !== "number" &&
+      expr.left.type === "BinaryOperation" &&
       (expr.left.operator === "+" || expr.left.operator === "-")
     ) {
       left = p(left);
     }
 
     if (
-      typeof expr.right !== "number" &&
+      expr.right.type === "BinaryOperation" &&
       (expr.right.operator === "+" ||
         expr.right.operator === "-" ||
         expr.right.operator === "/" ||
@@ -67,13 +73,13 @@ function _dicePrettyPrint(
       right = p(right);
     }
   } else if (expr.operator === "d") {
-    if (typeof expr.left !== "number") {
+    if (expr.left.type !== "NumberLiteral") {
       left = p(left);
-    } else if (expr.left === 1) {
+    } else if (expr.left.value === 1) {
       left = "";
     }
 
-    if (typeof expr.right !== "number") {
+    if (expr.right.type !== "NumberLiteral") {
       right = p(right);
     }
   } else {
