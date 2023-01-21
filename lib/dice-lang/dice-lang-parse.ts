@@ -1,5 +1,11 @@
 import P from "parsimmon";
-import { BinaryOperation, Expression, NumberLiteral } from "./dice-lang-ast";
+import {
+  BinaryOperation,
+  bo,
+  Expression,
+  n,
+  NumberLiteral,
+} from "./dice-lang-ast";
 
 interface DiceLanguage {
   _: string;
@@ -20,7 +26,7 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
   numberLiteral: () =>
     P.regexp(/[+-]?([0-9]*\.)?[0-9]+/)
       .map(Number)
-      .map((value): NumberLiteral => ({ type: "NumberLiteral", value }))
+      .map((value): NumberLiteral => n(value))
       .desc("number"),
 
   factor: (r) =>
@@ -32,21 +38,12 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
         r.factor,
         P.string("d").trim(r._),
         r.factor,
-        (left, operator, right): BinaryOperation => {
-          return { type: "BinaryOperation", left, operator, right };
-        }
+        (left, operator, right): BinaryOperation => bo(left, operator, right)
       ),
       P.seqMap(
         P.string("d").trim(r._),
         r.factor,
-        (operator, right): BinaryOperation => {
-          return {
-            type: "BinaryOperation",
-            left: { type: "NumberLiteral", value: 1 },
-            operator,
-            right,
-          };
-        }
+        (operator, right): BinaryOperation => bo(n(1), operator, right)
       ),
       r.factor
     ),
@@ -57,12 +54,8 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
       P.seq(P.alt(P.string("*"), P.string("/")).trim(r._), r.factor1).many(),
       (first, rest) =>
         rest.reduce(
-          (left, [operator, right]): BinaryOperation => ({
-            type: "BinaryOperation",
-            left,
-            operator,
-            right,
-          }),
+          (left, [operator, right]): BinaryOperation =>
+            bo(left, operator, right),
           first
         )
     ),
@@ -73,12 +66,8 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
       P.seq(P.alt(P.string("+"), P.string("-")).trim(r._), r.term).many(),
       (first, rest) =>
         rest.reduce(
-          (left, [operator, right]): BinaryOperation => ({
-            type: "BinaryOperation",
-            left,
-            operator,
-            right,
-          }),
+          (left, [operator, right]): BinaryOperation =>
+            bo(left, operator, right),
           first
         )
     ).trim(r._),
