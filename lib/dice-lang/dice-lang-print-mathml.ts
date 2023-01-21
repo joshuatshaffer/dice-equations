@@ -4,12 +4,11 @@ interface DicePrintOptions {
   /**
    * @default 'pretty'
    */
-  format?: "pretty" | "min" | "pedanticParens" | "MathML";
+  format: "MathML";
 }
-
 export function dicePrettyPrint(
   expr: Expression,
-  options?: DicePrintOptions
+  options: DicePrintOptions
 ): string {
   const d = _dicePrettyPrint(expr, options);
 
@@ -20,28 +19,16 @@ export function dicePrettyPrint(
   return d;
 }
 
-function _dicePrettyPrint(
-  expr: Expression,
-  options?: DicePrintOptions
-): string {
-  const p = (x: string) =>
-    options?.format === "MathML" ? `<mo>(</mo>${x}<mo>)</mo>` : `(${x})`;
+function _dicePrettyPrint(expr: Expression, options: DicePrintOptions): string {
+  const p = (x: string) => `<mo>(</mo>${x}<mo>)</mo>`;
 
   if (typeof expr === "number") {
-    return options?.format === "MathML" ? `<mn>${expr}</mn>` : expr.toString();
+    return `<mn>${expr}</mn>`;
   }
 
   let left = _dicePrettyPrint(expr.left, options);
   let right = _dicePrettyPrint(expr.right, options);
   const operator = expr.operator;
-
-  if (options?.format === "pedanticParens") {
-    return `${p(left)}${operator}${p(right)}`;
-  }
-
-  if (options?.format === "MathML" && expr.operator === "/") {
-    return `<mfrac><mrow>${left}</mrow><mrow>${right}</mrow></mfrac>`;
-  }
 
   if (expr.operator === "d") {
     if (typeof expr.left !== "number") {
@@ -54,9 +41,7 @@ function _dicePrettyPrint(
       right = p(right);
     }
 
-    return options?.format === "MathML"
-      ? `${left}<ms>${operator}</ms>${right}`
-      : `${left}${operator}${right}`;
+    return `${left}<mo>${operator}</mo>${right}`;
   }
 
   if (expr.operator === "+" || expr.operator === "-") {
@@ -67,14 +52,14 @@ function _dicePrettyPrint(
       right = p(right);
     }
 
-    return options?.format === "MathML"
-      ? `${left}<mo>${operator}</mo>${right}`
-      : options?.format === "min"
-      ? `${left}${operator}${right}`
-      : `${left} ${operator} ${right}`;
+    return `${left}<mo>${operator}</mo>${right}`;
   }
 
-  if (expr.operator === "*" || expr.operator === "/") {
+  if (expr.operator === "/") {
+    return `<mfrac><mrow>${left}</mrow><mrow>${right}</mrow></mfrac>`;
+  }
+
+  if (expr.operator === "*") {
     if (
       typeof expr.left !== "number" &&
       (expr.left.operator === "+" || expr.left.operator === "-")
@@ -92,11 +77,7 @@ function _dicePrettyPrint(
       right = p(right);
     }
 
-    return options?.format === "MathML"
-      ? `${left}<mo>${operator === "*" ? "&sdot;" : operator}</mo>${right}`
-      : options?.format === "min"
-      ? `${left}${operator}${right}`
-      : `${left} ${operator} ${right}`;
+    return `${left}<mo>${operator}</mo>${right}`;
   }
 
   return `${p(left)} ${operator} ${p(right)}`;

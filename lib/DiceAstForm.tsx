@@ -101,6 +101,16 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
       </form>
 
       {parsedExpr ? (
+        <div
+          dangerouslySetInnerHTML={{
+            __html: dicePrettyPrint(parsedExpr, {
+              format: "MathML",
+            }),
+          }}
+        />
+      ) : null}
+
+      {parsedExpr ? (
         <CombGraph
           data={new Map(prob(parsedExpr))}
           width={800}
