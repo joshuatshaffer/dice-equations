@@ -9,7 +9,7 @@ export interface NumberLiteral extends NodeBase {
 
 export interface UnaryOperation extends NodeBase {
   type: "UnaryOperation";
-  operator: "+" | "-" | "!";
+  operator: "-" | "!";
   operand: Expression;
 }
 
@@ -37,6 +37,9 @@ export const n = <V>(value: V) => ({ type: "NumberLiteral" as const, value });
 export const uo = <O, X>(operator: O, operand: X) => {
   return { type: "UnaryOperation" as const, operator, operand };
 };
+
+export const neg = <X>(x: X) => uo("-" as const, x);
+export const fac = <X>(x: X) => uo("!" as const, x);
 
 export const bo = <L, O, R>(left: L, operator: O, right: R) => {
   return { type: "BinaryOperation" as const, left, operator, right };
