@@ -1,7 +1,9 @@
 import { FC } from "react";
 
+const colors = ["blue", "red", "green", "cyan", "yellow", "magenta"];
+
 export interface CombGraphProps {
-  data: Map<number, number>;
+  data: Map<number, number>[];
 
   width: number;
   height: number;
@@ -28,68 +30,40 @@ export const CombGraph: FC<CombGraphProps> = ({
     y: mapRange(y, s.y, { min: height - padding, max: padding }),
   });
 
+  const line = ({ x, y, color }: { x: number; y: number; color: string }) => {
+    const original = { x, y };
+    const pixelSpace = {
+      ...mapPoint({ x, y }),
+      bottom: mapPoint({ x, y: 0 }),
+    };
+    return (
+      <g key={color + original.x}>
+        <line
+          x1={pixelSpace.bottom.x}
+          y1={pixelSpace.bottom.y}
+          x2={pixelSpace.x}
+          y2={pixelSpace.y}
+          stroke={color}
+        />
+        <circle r={2} cx={pixelSpace.x} cy={pixelSpace.y} fill={color} />
+        <title>{`${original.x} has a ${(original.y * 100).toPrecision(
+          2
+        )}% chance.`}</title>
+      </g>
+    );
+  };
+
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className={className}>
-      {[...data.entries()]
-        .sort(([a], [b]) => a - b)
-        .map(([x, y]) => {
-          return {
-            original: { x, y },
-            pixelSpace: {
-              ...mapPoint({ x, y }),
-              bottom: mapPoint({ x, y: 0 }),
-            },
-          };
-        })
-        .map((v, index, array) => {
-          const next = array[index + 1];
-          const prev = array[index - 1];
-
-          const left = prev
-            ? (v.pixelSpace.x + prev.pixelSpace.x) / 2
-            : v.pixelSpace.x;
-
-          const right = next
-            ? (v.pixelSpace.x + next.pixelSpace.x) / 2
-            : v.pixelSpace.x;
-
-          const top = v.pixelSpace.y - 10;
-
-          return {
-            ...v,
-            pixelSpace: {
-              ...v.pixelSpace,
-              left,
-              top,
-              width: right - left,
-              height: v.pixelSpace.bottom.y - top,
-            },
-          };
-        })
-        .map(({ original, pixelSpace }) => {
-          return (
-            <g key={original.x}>
-              <line
-                x1={pixelSpace.bottom.x}
-                y1={pixelSpace.bottom.y}
-                x2={pixelSpace.x}
-                y2={pixelSpace.y}
-                stroke="currentColor"
-              />
-              <circle r={2} cx={pixelSpace.x} cy={pixelSpace.y} />
-              <rect
-                x={pixelSpace.left}
-                y={pixelSpace.top}
-                width={pixelSpace.width}
-                height={pixelSpace.height}
-                fill="transparent"
-              />
-              <title>{`${original.x} has a ${(original.y * 100).toPrecision(
-                2
-              )}% chance.`}</title>
-            </g>
-          );
-        })}
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      width={width}
+      height={height}
+      className={className}
+    >
+      {data
+        .flatMap((m, i) => [...m].map(([x, y]) => ({ x, y, color: colors[i] })))
+        .sort((a, b) => (a.x === b.x ? b.y - a.y : a.x - b.x))
+        .map(line)}
 
       {/* X-axis */}
       {(() => {
@@ -103,17 +77,21 @@ export const CombGraph: FC<CombGraphProps> = ({
   );
 };
 
-function stats(data: Map<number, number>) {
+function stats(data: Iterable<readonly [number, number]>[]) {
   let s = {
     x: { min: Infinity, max: -Infinity },
     y: { min: Infinity, max: -Infinity },
+    support: new Set<number>(),
   };
 
-  for (const [x, y] of data.entries()) {
-    if (x < s.x.min) s.x.min = x;
-    if (x > s.x.max) s.x.max = x;
-    if (y < s.y.min) s.y.min = y;
-    if (y > s.y.max) s.y.max = y;
+  for (const m of data) {
+    for (const [x, y] of m) {
+      s.support.add(x);
+      if (x < s.x.min) s.x.min = x;
+      if (x > s.x.max) s.x.max = x;
+      if (y < s.y.min) s.y.min = y;
+      if (y > s.y.max) s.y.max = y;
+    }
   }
 
   return s;

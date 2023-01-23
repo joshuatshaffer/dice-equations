@@ -5,11 +5,16 @@ import {
   Expression,
   n,
   NumberLiteral,
+  Program,
+  Statement,
 } from "./dice-lang-ast";
 
 interface DiceLanguage {
   _: string;
   __: string;
+
+  program: Program;
+  statement: Statement;
 
   expr: Expression;
   term: Expression;
@@ -86,6 +91,10 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
           first
         )
     ).trim(r._),
+
+  statement: (r) => r.expr,
+
+  program: (r) => P.sepBy(r.statement, P.string(";")),
 });
 
-export const diceParser = diceLanguage.expr;
+export const diceParser = diceLanguage.program;

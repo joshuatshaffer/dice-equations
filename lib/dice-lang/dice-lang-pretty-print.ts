@@ -1,5 +1,5 @@
 import { match, P } from "ts-pattern";
-import { Expression, n } from "./dice-lang-ast";
+import { Expression, n, Program } from "./dice-lang-ast";
 
 interface DicePrintOptions {
   /**
@@ -9,19 +9,27 @@ interface DicePrintOptions {
 }
 
 export function dicePrettyPrint(
-  expr: Expression,
+  program: Program,
   options?: DicePrintOptions
 ): string {
-  const d = _dicePrettyPrint(expr, options);
-
   if (options?.format === "MathML") {
-    return `<math><mrow>${d}</mrow></math>`;
+    return `<math><mtable>${program
+      .map(
+        (expr) =>
+          `<mtr><mtd><mrow>${prettyPrintExpression(
+            expr,
+            options
+          )}</mrow></mtd></mtr>`
+      )
+      .join("")}</mtable></math>`;
   }
 
-  return d;
+  return program
+    .map((expr) => prettyPrintExpression(expr, options))
+    .join(options?.format === "min" ? ";" : ";\n");
 }
 
-function _dicePrettyPrint(
+function prettyPrintExpression(
   expr: Expression,
   options?: DicePrintOptions
 ): string {
@@ -38,8 +46,8 @@ function _dicePrettyPrint(
     throw new Error("TODO: support " + expr.type);
   }
 
-  let left = _dicePrettyPrint(expr.left, options);
-  let right = _dicePrettyPrint(expr.right, options);
+  let left = prettyPrintExpression(expr.left, options);
+  let right = prettyPrintExpression(expr.right, options);
 
   if (options?.format === "pedanticParens") {
     return `${p(left)}${expr.operator}${p(right)}`;

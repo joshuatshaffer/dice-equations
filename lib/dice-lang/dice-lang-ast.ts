@@ -32,6 +32,10 @@ export type Expression =
   | BinaryOperation
   | CallExpression;
 
+export type Statement = Expression;
+
+export type Program = Statement[];
+
 export const n = <V>(value: V) => ({ type: "NumberLiteral" as const, value });
 
 export const uo = <O, X>(operator: O, operand: X) => {

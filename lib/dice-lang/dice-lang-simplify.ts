@@ -10,11 +10,16 @@ import {
   Expression,
   mul,
   n,
+  Program,
   uo,
 } from "./dice-lang-ast";
 
 // This is a work in progress.
-export function diceLangSimplify(expr: Expression): Expression {
+export function diceLangSimplify(program: Program): Program {
+  return program.map(simplifyExpression);
+}
+
+function simplifyExpression(expr: Expression): Expression {
   let newExpr = expr;
   let oldExpr = expr;
 
@@ -77,12 +82,12 @@ const replacements = (expr: Expression) =>
       }
     )
     .with(uo(P.select("o"), P.select("x")), ({ o, x }) =>
-      uo(o, diceLangSimplify(x))
+      uo(o, simplifyExpression(x))
     )
     .with(bo(P.select("x"), P.select("o"), P.select("y")), ({ x, o, y }) =>
-      bo(diceLangSimplify(x), o, diceLangSimplify(y))
+      bo(simplifyExpression(x), o, simplifyExpression(y))
     )
     .with(cx(P.select("f"), P.select("args")), ({ f, args }) =>
-      cx(f, args.map(diceLangSimplify))
+      cx(f, args.map(simplifyExpression))
     )
     .otherwise((x) => x);

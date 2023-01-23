@@ -18,7 +18,7 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
 
   const parseResult = diceParser.parse(inputValue);
 
-  const parsedExpr = useLatest(
+  const parsedProgram = useLatest(
     parseResult.status ? parseResult.value : undefined
   );
 
@@ -26,9 +26,9 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
     <div>
       <form>
         <label htmlFor="dice-program-input">program</label>{" "}
-        <input
+        <textarea
           id="dice-program-input"
-          type="text"
+          rows={5}
           name="p"
           aria-invalid={!parseResult.status}
           aria-describedby="dice-program-input-helper"
@@ -51,8 +51,8 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
             value="pretty-print"
             onClick={(event) => {
               event.preventDefault();
-              if (parsedExpr !== undefined) {
-                setInputValue(dicePrettyPrint(parsedExpr));
+              if (parsedProgram !== undefined) {
+                setInputValue(dicePrettyPrint(parsedProgram));
               }
             }}
           >
@@ -63,8 +63,10 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
             value="minify"
             onClick={(event) => {
               event.preventDefault();
-              if (parsedExpr !== undefined) {
-                setInputValue(dicePrettyPrint(parsedExpr, { format: "min" }));
+              if (parsedProgram !== undefined) {
+                setInputValue(
+                  dicePrettyPrint(parsedProgram, { format: "min" })
+                );
               }
             }}
           >
@@ -75,9 +77,9 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
             value="pedantic-parens"
             onClick={(event) => {
               event.preventDefault();
-              if (parsedExpr !== undefined) {
+              if (parsedProgram !== undefined) {
                 setInputValue(
-                  dicePrettyPrint(parsedExpr, { format: "pedanticParens" })
+                  dicePrettyPrint(parsedProgram, { format: "pedanticParens" })
                 );
               }
             }}
@@ -88,8 +90,8 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
         <button
           onClick={(event) => {
             event.preventDefault();
-            if (parsedExpr !== undefined) {
-              setInputValue(dicePrettyPrint(diceLangSimplify(parsedExpr)));
+            if (parsedProgram !== undefined) {
+              setInputValue(dicePrettyPrint(diceLangSimplify(parsedProgram)));
             }
           }}
         >
@@ -100,48 +102,23 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
         </noscript>
       </form>
 
-      {parsedExpr ? (
+      {parsedProgram ? (
         <div
           dangerouslySetInnerHTML={{
-            __html: dicePrettyPrint(parsedExpr, {
+            __html: dicePrettyPrint(parsedProgram, {
               format: "MathML",
             }),
           }}
         />
       ) : null}
 
-      {parsedExpr ? (
+      {parsedProgram ? (
         <CombGraph
-          data={new Map(prob(parsedExpr))}
+          data={parsedProgram.map((p) => new Map(prob(p)))}
           width={800}
           height={600}
           padding={10}
         />
-      ) : null}
-      {parsedExpr ? (
-        <table>
-          <tbody>
-            {[...prob(parsedExpr)]
-              .sort(([a], [b]) => a - b)
-              .map(([k, v]) => (
-                <tr key={k}>
-                  <td style={{ textAlign: "right" }}>{k}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {(v * 100).toFixed(2)}%
-                  </td>
-                  <td style={{ width: 1000 }}>
-                    <div
-                      style={{
-                        width: `${v * 100}%`,
-                        height: "18px",
-                        backgroundColor: "darkgray",
-                      }}
-                    />
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
       ) : null}
     </div>
   );
