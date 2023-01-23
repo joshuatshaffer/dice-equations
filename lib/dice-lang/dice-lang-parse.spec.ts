@@ -6,7 +6,12 @@ describe("diceParser", () => {
   it("works", () => {
     expect(diceParser.parse("2d5")).toEqual<P.Success<Expression>>({
       status: true,
-      value: { left: 2, operator: "d", right: 5 },
+      value: {
+        type: "BinaryOperation",
+        left: { type: "NumberLiteral", value: 2 },
+        operator: "d",
+        right: { type: "NumberLiteral", value: 5 },
+      },
     });
   });
 });

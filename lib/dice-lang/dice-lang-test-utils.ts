@@ -8,9 +8,10 @@ export const arbDiceExpression = fc.letrec<{
 }>((tie) => ({
   expr: fc.oneof(tie("numberLiteral"), tie("binaryOperation")),
   binaryOperation: fc.record({
+    type: fc.constant("BinaryOperation"),
     left: tie("expr"),
     operator: fc.constantFrom("+", "-", "*", "/", "d"),
     right: tie("expr"),
   }),
-  numberLiteral: fc.nat(),
+  numberLiteral: fc.nat().map((value) => ({ type: "NumberLiteral", value })),
 }));
