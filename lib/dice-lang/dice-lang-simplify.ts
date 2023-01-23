@@ -26,14 +26,14 @@ export function diceLangSimplify(expr: Expression): Expression {
 }
 
 const replacements = (expr: Expression) =>
-  match(expr)
+  match<Expression, Expression>(expr)
     .with(
       add(P.select("x"), add(P.select("y"), P.select("z"))),
-      ({ x, y, z }): Expression => add(add(x, y), z)
+      ({ x, y, z }) => add(add(x, y), z)
     )
     .with(
       mul(P.select("x"), mul(P.select("y"), P.select("z"))),
-      ({ x, y, z }): Expression => mul(mul(x, y), z)
+      ({ x, y, z }) => mul(mul(x, y), z)
     )
     .with(
       P.select(
@@ -43,7 +43,7 @@ const replacements = (expr: Expression) =>
           dice(P.select("x1"), n(P.select("y1")))
         )
       ),
-      ({ original, x0, y0, x1, y1 }): Expression =>
+      ({ original, x0, y0, x1, y1 }) =>
         y0 === y1 ? dice(add(x0, x1), n(y0)) : original
     )
     .with(
@@ -51,7 +51,7 @@ const replacements = (expr: Expression) =>
         "original",
         bo(n(P.select("x")), P.select("o"), n(P.select("y")))
       ),
-      ({ original, x, o, y }): Expression => {
+      ({ original, x, o, y }) => {
         switch (o) {
           case "+":
             return n(x + y);
@@ -71,17 +71,13 @@ const replacements = (expr: Expression) =>
         }
       }
     )
-    .with(
-      uo(P.select("o"), P.select("x")),
-      ({ o, x }): Expression => uo(o, diceLangSimplify(x))
+    .with(uo(P.select("o"), P.select("x")), ({ o, x }) =>
+      uo(o, diceLangSimplify(x))
     )
-    .with(
-      bo(P.select("x"), P.select("o"), P.select("y")),
-      ({ x, o, y }): Expression =>
-        bo(diceLangSimplify(x), o, diceLangSimplify(y))
+    .with(bo(P.select("x"), P.select("o"), P.select("y")), ({ x, o, y }) =>
+      bo(diceLangSimplify(x), o, diceLangSimplify(y))
     )
-    .with(
-      cx(P.select("f"), P.select("args")),
-      ({ f, args }): Expression => cx(f, args.map(diceLangSimplify))
+    .with(cx(P.select("f"), P.select("args")), ({ f, args }) =>
+      cx(f, args.map(diceLangSimplify))
     )
     .otherwise((x) => x);
