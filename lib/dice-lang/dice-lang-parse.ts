@@ -20,8 +20,6 @@ interface DiceLanguage {
   numberLiteral: NumberLiteral;
 }
 
-const skldj = 1 ** (2 ** 3);
-
 const diceLanguage = P.createLanguage<DiceLanguage>({
   _: () => P.optWhitespace,
   __: () => P.whitespace,
