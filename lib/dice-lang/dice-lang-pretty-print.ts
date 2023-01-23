@@ -56,7 +56,11 @@ function _dicePrettyPrint(
     ) {
       right = p(right);
     }
-  } else if (expr.operator === "*" || expr.operator === "/") {
+  } else if (
+    expr.operator === "*" ||
+    expr.operator === "/" ||
+    expr.operator === "%"
+  ) {
     if (
       expr.left.type === "BinaryOperation" &&
       (expr.left.operator === "+" || expr.left.operator === "-")
@@ -68,8 +72,33 @@ function _dicePrettyPrint(
       expr.right.type === "BinaryOperation" &&
       (expr.right.operator === "+" ||
         expr.right.operator === "-" ||
+        expr.right.operator === "*" ||
         expr.right.operator === "/" ||
-        expr.right.operator === "*")
+        expr.right.operator === "%")
+    ) {
+      right = p(right);
+    }
+  } else if (expr.operator === "**") {
+    if (
+      expr.left.type === "BinaryOperation" &&
+      (expr.left.operator === "+" ||
+        expr.left.operator === "-" ||
+        expr.left.operator === "*" ||
+        expr.left.operator === "/" ||
+        expr.left.operator === "%" ||
+        expr.left.operator === "**")
+    ) {
+      left = p(left);
+    }
+
+    if (
+      options?.format !== "MathML" &&
+      expr.right.type === "BinaryOperation" &&
+      (expr.right.operator === "+" ||
+        expr.right.operator === "-" ||
+        expr.right.operator === "*" ||
+        expr.right.operator === "/" ||
+        expr.right.operator === "%")
     ) {
       right = p(right);
     }
@@ -89,7 +118,9 @@ function _dicePrettyPrint(
   }
 
   return options?.format === "MathML"
-    ? expr.operator === "d"
+    ? expr.operator === "**"
+      ? `<msup><mrow>${left}</mrow><mrow>${right}</mrow></msup>`
+      : expr.operator === "d"
       ? `${left}<ms>d</ms>${right}`
       : `${left}<mo>${
           expr.operator === "*" ? "&sdot;" : expr.operator

@@ -66,6 +66,10 @@ const replacements = (expr: Expression) =>
             }
             return n(x / y);
           }
+          case "%":
+            return n(x % y);
+          case "**":
+            return n(x ** y);
           default:
             return original;
         }

@@ -15,7 +15,7 @@ export interface UnaryOperation extends NodeBase {
 
 export interface BinaryOperation extends NodeBase {
   type: "BinaryOperation";
-  operator: "+" | "-" | "*" | "/" | "d";
+  operator: "+" | "-" | "*" | "/" | "**" | "%" | "d";
   left: Expression;
   right: Expression;
 }
@@ -49,6 +49,8 @@ export const add = <X, Y>(x: X, y: Y) => bo(x, "+" as const, y);
 export const sub = <X, Y>(x: X, y: Y) => bo(x, "-" as const, y);
 export const mul = <X, Y>(x: X, y: Y) => bo(x, "*" as const, y);
 export const div = <X, Y>(x: X, y: Y) => bo(x, "/" as const, y);
+export const mod = <X, Y>(x: X, y: Y) => bo(x, "%" as const, y);
+export const pow = <X, Y>(x: X, y: Y) => bo(x, "**" as const, y);
 export const dice = <X, Y>(x: X, y: Y) => bo(x, "d" as const, y);
 
 export const cx = <F, A>(callee: F, args: A) => {

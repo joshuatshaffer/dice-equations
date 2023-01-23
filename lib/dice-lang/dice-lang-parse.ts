@@ -15,9 +15,12 @@ interface DiceLanguage {
   term: Expression;
   factor: Expression;
   factor1: Expression;
+  factor2: Expression;
 
   numberLiteral: NumberLiteral;
 }
+
+const skldj = 1 ** (2 ** 3);
 
 const diceLanguage = P.createLanguage<DiceLanguage>({
   _: () => P.optWhitespace,
@@ -48,10 +51,24 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
       r.factor
     ),
 
+  factor2: (r) =>
+    P.alt(
+      P.seqMap(
+        r.factor1,
+        P.string("**").trim(r._),
+        r.factor2,
+        (left, operator, right): BinaryOperation => bo(left, operator, right)
+      ),
+      r.factor1
+    ),
+
   term: (r) =>
     P.seqMap(
-      r.factor1,
-      P.seq(P.alt(P.string("*"), P.string("/")).trim(r._), r.factor1).many(),
+      r.factor2,
+      P.seq(
+        P.alt(P.string("*"), P.string("/"), P.string("%")).trim(r._),
+        r.factor2
+      ).many(),
       (first, rest) =>
         rest.reduce(
           (left, [operator, right]): BinaryOperation =>

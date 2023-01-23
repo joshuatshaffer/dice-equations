@@ -28,6 +28,10 @@ export function prob(diceExpr: Expression): Prob<number> {
           return x * y;
         case "/":
           return x / y;
+        case "%":
+          return x % y;
+        case "**":
+          return x ** y;
       }
     })
   );
