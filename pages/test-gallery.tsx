@@ -22,6 +22,7 @@ export default function TestGallery() {
             <Row equation="2d6" />
             <Row equation="d8*(2/3)" />
             <Row equation="8*(2/3)" />
+            <Row equation="(2/3)*8" />
             <Row equation="1+2" />
             <Row equation="1-2" />
             <Row equation="2*3" />
