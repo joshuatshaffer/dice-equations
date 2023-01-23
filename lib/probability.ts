@@ -57,8 +57,11 @@ function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
 }
 
 function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
-  if (times < 1) {
+  if (times < 0) {
     return Prob.unit(NaN);
+  }
+  if (times === 0) {
+    return Prob.unit(0);
   }
 
   let m = x;

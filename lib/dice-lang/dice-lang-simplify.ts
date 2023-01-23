@@ -46,6 +46,7 @@ const replacements = (expr: Expression) =>
       ({ original, x0, y0, x1, y1 }) =>
         y0 === y1 ? dice(add(x0, x1), n(y0)) : original
     )
+    .with(dice(n(0), P.any), () => n(0))
     .with(
       P.select(
         "original",
