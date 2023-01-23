@@ -1,40 +1,52 @@
 import { Expression } from "./dice-lang/dice-lang-ast";
+import { factorial } from "./math-helpers";
 
-export function prob(diceExpr: Expression): Prob<number> {
-  if (diceExpr.type === "NumberLiteral") {
-    return Prob.unit(diceExpr.value);
+export function prob(expr: Expression): Prob<number> {
+  if (expr.type === "NumberLiteral") {
+    return Prob.unit(expr.value);
   }
 
-  if (diceExpr.type !== "BinaryOperation") {
-    throw new Error("TODO: support " + diceExpr.type);
-  }
-
-  const left = prob(diceExpr.left);
-  const right = prob(diceExpr.right);
-  const operator = diceExpr.operator;
-
-  if (operator === "d") {
-    return dice(left, right);
-  }
-
-  return left.flatMap((x) =>
-    right.map((y) => {
-      switch (operator) {
-        case "+":
-          return x + y;
+  if (expr.type === "UnaryOperation") {
+    return prob(expr.operand).map((x) => {
+      switch (expr.operator) {
         case "-":
-          return x - y;
-        case "*":
-          return x * y;
-        case "/":
-          return x / y;
-        case "%":
-          return x % y;
-        case "**":
-          return x ** y;
+          return -x;
+        case "!":
+          return factorial(x);
       }
-    })
-  );
+    });
+  }
+
+  if (expr.type === "BinaryOperation") {
+    const left = prob(expr.left);
+    const right = prob(expr.right);
+    const operator = expr.operator;
+
+    if (operator === "d") {
+      return dice(left, right);
+    }
+
+    return left.flatMap((x) =>
+      right.map((y) => {
+        switch (operator) {
+          case "+":
+            return x + y;
+          case "-":
+            return x - y;
+          case "*":
+            return x * y;
+          case "/":
+            return x / y;
+          case "%":
+            return x % y;
+          case "**":
+            return x ** y;
+        }
+      })
+    );
+  }
+
+  throw new TypeError("Invalid node type");
 }
 
 function singleDie(sides: number) {
