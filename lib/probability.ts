@@ -77,9 +77,15 @@ function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
   }
 
   let m = x;
-
-  for (let i = 1; i < times; ++i) {
-    m = m.flatMap((w) => x.map((z) => w + z));
+  let i = 1;
+  while (i < times) {
+    if (2 * i <= times) {
+      m = m.flatMap((w) => m.map((z) => w + z));
+      i *= 2;
+    } else {
+      m = m.flatMap((w) => x.map((z) => w + z));
+      ++i;
+    }
   }
 
   return m;
