@@ -2,6 +2,8 @@ import P from "parsimmon";
 import {
   BinaryOperation,
   bo,
+  CallExpression,
+  cx,
   Expression,
   n,
   NumberLiteral,
@@ -22,6 +24,8 @@ interface DiceLanguage {
   factor1: Expression;
   factor2: Expression;
 
+  callExpression: CallExpression;
+
   numberLiteral: NumberLiteral;
 }
 
@@ -35,8 +39,22 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
       .map((value): NumberLiteral => n(value))
       .desc("number"),
 
+  callExpression: (r) =>
+    P.seqMap(
+      P.regex(/[a-zA-Z_][a-zA-Z0-9_]*/),
+      P.sepBy(r.expr, P.string(",").trim(r._)).wrap(
+        P.string("("),
+        P.string(")")
+      ),
+      (callee, args): CallExpression => cx(callee, args)
+    ),
+
   factor: (r) =>
-    P.alt(r.expr.wrap(P.string("("), P.string(")")), r.numberLiteral),
+    P.alt(
+      r.expr.wrap(P.string("("), P.string(")")),
+      r.callExpression,
+      r.numberLiteral
+    ),
 
   factor1: (r) =>
     P.alt(

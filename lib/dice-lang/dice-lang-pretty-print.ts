@@ -10,7 +10,7 @@ interface DicePrintOptions {
 
 export function dicePrettyPrint(
   program: Program,
-  options?: DicePrintOptions
+  options: DicePrintOptions = {}
 ): string {
   if (options?.format === "MathML") {
     return `<math><mtable>${program
@@ -31,7 +31,7 @@ export function dicePrettyPrint(
 
 function prettyPrintExpression(
   expr: Expression,
-  options?: DicePrintOptions
+  options: DicePrintOptions
 ): string {
   const p = (x: string) =>
     options?.format === "MathML" ? `<mo>(</mo>${x}<mo>)</mo>` : `(${x})`;
@@ -40,6 +40,25 @@ function prettyPrintExpression(
     return options?.format === "MathML"
       ? `<mn>${expr.value}</mn>`
       : expr.value.toString();
+  }
+
+  if (expr.type === "CallExpression") {
+    const args =
+      options?.format === "MathML"
+        ? expr.args
+            .map((a) => prettyPrintExpression(a, options))
+            .join("<mo>,</mo>")
+        : expr.args
+            .map((a) => prettyPrintExpression(a, options))
+            .join(options?.format === "min" ? "," : ", ");
+
+    return options?.format === "MathML"
+      ? expr.callee === "floor"
+        ? `<mrow><mo>&lfloor;</mo>${args}<mo>&rfloor;</mo></mrow>`
+        : expr.callee === "ceil"
+        ? `<mrow><mo>&lceil;</mo>${args}<mo>&rceil;</mo></mrow>`
+        : `${expr.callee}<mrow><mo>(</mo>${args}<mo>)</mo></mrow>`
+      : `${expr.callee}(${args})`;
   }
 
   if (expr.type !== "BinaryOperation") {

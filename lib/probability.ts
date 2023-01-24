@@ -46,6 +46,17 @@ export function prob(expr: Expression): Prob<number> {
     );
   }
 
+  if (expr.type === "CallExpression") {
+    if (expr.callee === "floor") {
+      return prob(expr.args[0]).map((x) => Math.floor(x));
+    }
+    if (expr.callee === "ceil") {
+      return prob(expr.args[0]).map((x) => Math.ceil(x));
+    }
+
+    return Prob.unit(NaN);
+  }
+
   throw new TypeError("Invalid node type");
 }
 
