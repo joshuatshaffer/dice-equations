@@ -81,6 +81,24 @@ const replacements = (expr: Expression) =>
         }
       }
     )
+    .with(
+      div(P.select("x"), div(P.select("y"), P.select("z"))),
+      ({ x, y, z }) => div(mul(x, z), y)
+    )
+    .with(
+      div(div(P.select("x"), P.select("y")), P.select("z")),
+      ({ x, y, z }) => div(x, mul(y, z))
+    )
+    // x*(y/z) -> (x*y)/z
+    .with(
+      mul(P.select("x"), div(P.select("y"), P.select("z"))),
+      ({ x, y, z }) => div(mul(x, y), z)
+    )
+    // (y/z)*x -> (y*x)/z
+    .with(
+      mul(div(P.select("y"), P.select("z")), P.select("x")),
+      ({ x, y, z }) => div(mul(x, y), z)
+    )
     .with(uo(P.select("o"), P.select("x")), ({ o, x }) =>
       uo(o, simplifyExpression(x))
     )
