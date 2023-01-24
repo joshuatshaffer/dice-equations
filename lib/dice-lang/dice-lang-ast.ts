@@ -26,6 +26,18 @@ export interface CallExpression extends NodeBase {
   args: Expression[];
 }
 
+export interface RangeExpression extends NodeBase {
+  type: "RangeExpression";
+  from: Expression;
+  then: Expression | null;
+  to: Expression;
+}
+
+export interface ArrayLiteral extends NodeBase {
+  type: "ArrayLiteral";
+  elements: Expression[];
+}
+
 export type Expression =
   | NumberLiteral
   | UnaryOperation
