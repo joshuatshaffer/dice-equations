@@ -30,3 +30,29 @@ export function factorial(n: number): number {
 export function choose(n: number, k: number): number {
   return factorial(n) / (factorial(k) * factorial(n - k));
 }
+
+export function fromThenTo({
+  from,
+  then,
+  to,
+}: {
+  from: number;
+  then?: number;
+  to: number;
+}) {
+  if (then === undefined) {
+    then = from <= to ? from + 1 : from - 1;
+  }
+
+  const step = then - from;
+
+  if (step === 0) {
+    throw new Error("from and then must not be equal");
+  }
+
+  const output: number[] = [];
+  for (let i = from; step > 0 ? i <= to : i >= to; i += step) {
+    output.push(i);
+  }
+  return output;
+}
