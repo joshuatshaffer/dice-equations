@@ -32,14 +32,17 @@ function simplifyExpression(expr: Expression): Expression {
 
 const replacements = (expr: Expression) =>
   match<Expression, Expression>(expr)
+    // x+(y+z) -> (x+y)+z
     .with(
       add(P.select("x"), add(P.select("y"), P.select("z"))),
       ({ x, y, z }) => add(add(x, y), z)
     )
+    // x*(y*z) -> (x*y)*z
     .with(
       mul(P.select("x"), mul(P.select("y"), P.select("z"))),
       ({ x, y, z }) => mul(mul(x, y), z)
     )
+    // xdz + ydz -> (x + y)dz
     .with(
       P.select(
         "original",
@@ -51,7 +54,10 @@ const replacements = (expr: Expression) =>
       ({ original, x0, y0, x1, y1 }) =>
         y0 === y1 ? dice(add(x0, x1), n(y0)) : original
     )
+    // 0dx -> 0
     .with(dice(n(0), P.any), () => n(0))
+    // xd1 -> x
+    .with(dice(P.select("x"), n(1)), ({ x }) => x)
     .with(
       P.select(
         "original",
@@ -81,10 +87,12 @@ const replacements = (expr: Expression) =>
         }
       }
     )
+    // x/(y/z) -> (x*z)/y
     .with(
       div(P.select("x"), div(P.select("y"), P.select("z"))),
       ({ x, y, z }) => div(mul(x, z), y)
     )
+    // (x/y)/z -> x/(y*z)
     .with(
       div(div(P.select("x"), P.select("y")), P.select("z")),
       ({ x, y, z }) => div(x, mul(y, z))
