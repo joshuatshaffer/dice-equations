@@ -4,6 +4,7 @@ import { CombGraph } from "./CombGraph";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
+import styles from "./DiceAstForm.module.scss";
 import { prob } from "./probability";
 import { useLatest } from "./useLatest";
 
@@ -24,7 +25,7 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
 
   return (
     <div>
-      <form>
+      <form className={styles.form}>
         <label htmlFor="dice-program-input">program</label>{" "}
         <textarea
           id="dice-program-input"
@@ -104,6 +105,7 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
 
       {parsedProgram ? (
         <div
+          className={styles.mathDisplay}
           dangerouslySetInnerHTML={{
             __html: dicePrettyPrint(parsedProgram, {
               format: "MathML",
@@ -114,6 +116,7 @@ export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
 
       {parsedProgram ? (
         <CombGraph
+          className={styles.graph}
           data={parsedProgram.map((p) => new Map(prob(p)))}
           width={800}
           height={600}
