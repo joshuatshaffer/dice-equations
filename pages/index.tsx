@@ -1,4 +1,5 @@
 import Head from "next/head";
+import { Disclaimer } from "../lib/Disclaimer";
 import { TestGallery } from "../lib/TestGallery";
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <Disclaimer />
         <TestGallery />
       </main>
     </>

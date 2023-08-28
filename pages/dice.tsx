@@ -2,6 +2,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { DiceAstForm } from "../lib/DiceAstForm";
+import { Disclaimer } from "../lib/Disclaimer";
 
 const DicePage: NextPage = () => {
   return (
@@ -12,6 +13,7 @@ const DicePage: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <Disclaimer />
         <Link href="/">Examples</Link>
         <DiceAstForm />
       </main>

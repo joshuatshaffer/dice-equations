@@ -1,0 +1,25 @@
+$bg: black;
+$fg: rgb(255, 191, 0);
+$stripe-width: 4px;
+
+.disclaimer {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    $fg 0 $stripe-width,
+    $bg $stripe-width #{$stripe-width * 2}
+  );
+  padding: 4px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.disclaimerContent {
+  margin: 0;
+  padding: 1rem;
+  background: $bg;
+  color: $fg;
+  text-align: center;
+  text-wrap: balance;
+  text-wrap: pretty;
+}
