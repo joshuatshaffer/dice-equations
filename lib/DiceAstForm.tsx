@@ -1,10 +1,10 @@
 import { useRouter } from "next/router";
 import { FC, useState } from "react";
 import { CombGraph } from "./CombGraph";
+import styles from "./DiceAstForm.module.scss";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
-import styles from "./DiceAstForm.module.scss";
 import { firstValue } from "./firstValue";
 import { prob } from "./probability";
 import { useLatest } from "./useLatest";
@@ -18,7 +18,7 @@ export const DiceAstForm: FC = () => {
 
   const setInputValue = (value: string) => {
     _setInputValue(value);
-    router.replace({ query: { ...router.query, p: inputValue } });
+    router.replace({ query: { ...router.query, p: value } });
   };
 
   const parseResult = diceParser.parse(inputValue);
