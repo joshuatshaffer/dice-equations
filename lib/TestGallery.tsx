@@ -48,24 +48,20 @@ function Row({ equation }: { equation: string }) {
           <td>
             <code>{dicePrettyPrint(diceLangSimplify(parsedExpr))}</code>
           </td>
-          <td>
-            <code
-              dangerouslySetInnerHTML={{
-                __html: dicePrettyPrint(parsedExpr, {
-                  format: "MathML",
-                }),
-              }}
-            />
-          </td>
-          <td>
-            <code
-              dangerouslySetInnerHTML={{
-                __html: dicePrettyPrint(diceLangSimplify(parsedExpr), {
-                  format: "MathML",
-                }),
-              }}
-            />
-          </td>
+          <td
+            dangerouslySetInnerHTML={{
+              __html: dicePrettyPrint(parsedExpr, {
+                format: "MathML",
+              }),
+            }}
+          />
+          <td
+            dangerouslySetInnerHTML={{
+              __html: dicePrettyPrint(diceLangSimplify(parsedExpr), {
+                format: "MathML",
+              }),
+            }}
+          />
         </>
       ) : null}
     </tr>
