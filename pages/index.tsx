@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Link from "next/link";
+import { TestGallery } from "../lib/TestGallery";
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Link href="/dice">Dice</Link>
+        <TestGallery />
       </main>
     </>
   );
