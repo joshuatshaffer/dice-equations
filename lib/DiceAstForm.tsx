@@ -5,13 +5,16 @@ import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
 import styles from "./DiceAstForm.module.scss";
+import { firstValue } from "./firstValue";
 import { prob } from "./probability";
 import { useLatest } from "./useLatest";
 
-export const DiceAstForm: FC<{ p: string }> = ({ p }) => {
+export const DiceAstForm: FC = () => {
   const router = useRouter();
 
-  const [inputValue, _setInputValue] = useState<string>(p);
+  const [inputValue, _setInputValue] = useState<string>(
+    firstValue(router.query.p) || "2d6+3"
+  );
 
   const setInputValue = (value: string) => {
     _setInputValue(value);

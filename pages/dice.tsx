@@ -1,13 +1,8 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import { DiceAstForm } from "../lib/DiceAstForm";
-import { firstValue } from "../lib/firstValue";
 
-interface DicePageProps {
-  p: string;
-}
-
-const DicePage: NextPage<DicePageProps> = ({ p }) => {
+const DicePage: NextPage = () => {
   return (
     <>
       <Head>
@@ -16,14 +11,10 @@ const DicePage: NextPage<DicePageProps> = ({ p }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <DiceAstForm p={p} />
+        <DiceAstForm />
       </main>
     </>
   );
 };
 
 export default DicePage;
-
-DicePage.getInitialProps = (context) => {
-  return { p: firstValue(context.query.p) || "2d6+3" };
-};
