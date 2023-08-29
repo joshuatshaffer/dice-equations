@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { ComponentType, useState } from "react";
+import { ComponentType, useMemo, useState } from "react";
 import { CombGraph } from "./CombGraph";
 import styles from "./DiceAstForm.module.scss";
 import { diceParser } from "./dice-lang/dice-lang-parse";
@@ -32,6 +32,12 @@ export const DiceAstForm = clientOnly(() => {
 
   const parsedProgram = useLatest(
     parseResult.status ? parseResult.value : undefined
+  );
+
+  const graphData = useMemo(
+    () =>
+      parsedProgram ? parsedProgram.map((p) => new Map(prob(p))) : undefined,
+    [parsedProgram]
   );
 
   return (
@@ -125,10 +131,10 @@ export const DiceAstForm = clientOnly(() => {
         />
       ) : null}
 
-      {parsedProgram ? (
+      {graphData ? (
         <CombGraph
           className={styles.graph}
-          data={parsedProgram.map((p) => new Map(prob(p)))}
+          data={graphData}
           width={800}
           height={600}
           padding={10}

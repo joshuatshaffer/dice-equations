@@ -106,6 +106,24 @@ export function prob(expr: Expression): Prob<number> {
       }
     }
 
+    if (callee === "highest") {
+      if (
+        expr.args.length !== 2 ||
+        expr.args[1].type !== "BinaryOperation" ||
+        expr.args[1].operator !== "d"
+      ) {
+        return Prob.unit(NaN);
+      } else {
+        const {
+          args: [K, { left: N, right: M }],
+        } = expr;
+
+        return prob(K).flatMap((k) =>
+          prob(N).flatMap((n) => prob(M).flatMap((m) => highest(k, n, m)))
+        );
+      }
+    }
+
     return Prob.unit(NaN);
   }
 
@@ -130,6 +148,53 @@ function singleDie(sides: number) {
 function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
   const d = sides.flatMap((s) => singleDie(s));
   return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
+}
+
+function possibleDice(numberOfDice: number, sides: number) {
+  return {
+    length: sides ** numberOfDice,
+    values: function* () {
+      const diceCounters: number[] = [...Array(numberOfDice)].map(() => 1);
+
+      const incrementCountersAndReturnIsDone = () => {
+        for (let i = 0; i < numberOfDice; i++) {
+          diceCounters[i]++;
+          if (diceCounters[i] <= sides) {
+            return false;
+          }
+          diceCounters[i] = 1;
+        }
+        return true;
+      };
+
+      do {
+        yield [...diceCounters];
+      } while (!incrementCountersAndReturnIsDone());
+    },
+  };
+}
+
+// TODO: `possibleDice` is slow. Replace this with a faster implementation.
+function highest(
+  numberOfDiceToKeep: number,
+  numberOfDice: number,
+  sides: number
+): Prob<number> {
+  const b = new ProbBuilder<number>();
+
+  const _possibleDice = possibleDice(numberOfDice, sides);
+
+  for (const dice of _possibleDice.values()) {
+    b.add(
+      [...dice]
+        .sort((a, b) => b - a)
+        .slice(0, numberOfDiceToKeep)
+        .reduce((a, b) => a + b, 0),
+      1 / _possibleDice.length
+    );
+  }
+
+  return b.build();
 }
 
 function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
