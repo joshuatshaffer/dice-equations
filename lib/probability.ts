@@ -1,6 +1,37 @@
 import { Expression } from "./dice-lang/dice-lang-ast";
 import { factorial } from "./math-helpers";
 
+type UnaryMathFunctions = {
+  [P in keyof Math]: ((x: number) => number) extends Math[P] ? P : never;
+}[keyof Math];
+
+const UnaryMathFunctions = [
+  "sin",
+  "cos",
+  "tan",
+  "acos",
+  "asin",
+  "atan",
+  "sinh",
+  "cosh",
+  "tanh",
+  "acosh",
+  "asinh",
+  "atanh",
+
+  "abs",
+  "sign",
+
+  "floor",
+  "ceil",
+  "round",
+  "trunc",
+] as const satisfies readonly UnaryMathFunctions[];
+
+function isElementOf<T>(s: readonly T[], x: unknown): x is T {
+  return (s as readonly unknown[]).includes(x);
+}
+
 export function prob(expr: Expression): Prob<number> {
   if (expr.type === "NumberLiteral") {
     return Prob.unit(expr.value);
@@ -47,11 +78,10 @@ export function prob(expr: Expression): Prob<number> {
   }
 
   if (expr.type === "CallExpression") {
-    if (expr.callee === "floor") {
-      return prob(expr.args[0]).map((x) => Math.floor(x));
-    }
-    if (expr.callee === "ceil") {
-      return prob(expr.args[0]).map((x) => Math.ceil(x));
+    const callee = expr.callee;
+
+    if (isElementOf(UnaryMathFunctions, callee)) {
+      return prob(expr.args[0]).map((x) => Math[callee](x));
     }
 
     return Prob.unit(NaN);
