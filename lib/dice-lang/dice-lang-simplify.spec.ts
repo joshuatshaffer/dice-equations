@@ -2,7 +2,15 @@ import { diceParser } from "./dice-lang-parse";
 import { diceLangSimplify } from "./dice-lang-simplify";
 
 describe("diceLangSimplify", () => {
-  const testCases = ["1+1 -> 2", "2/3 -> 2/3", "0d3 -> 0"] as const;
+  const testCases = [
+    "1+1 -> 2",
+    "2/3 -> 2/3",
+    "0d3 -> 0",
+    "highest(1, d5) -> d5",
+    "highest(2, 2d8) -> 2d8",
+    "lowest(1, d5) -> d5",
+    "lowest(2, 2d8) -> 2d8",
+  ] as const;
 
   for (const testCase of testCases) {
     it(`Simplifies ${testCase}`, () => {

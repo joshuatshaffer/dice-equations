@@ -32,6 +32,18 @@ function simplifyExpression(expr: Expression): Expression {
 
 const replacements = (expr: Expression) =>
   match<Expression, Expression>(expr)
+    // highest(x, xdy) -> xdy
+    //  lowest(x, xdy) -> xdy
+    .with(
+      P.select(
+        "original",
+        cx(P.union("highest", "lowest"), [
+          n(P.select("x0")),
+          dice(n(P.select("x1")), n(P.select("y"))),
+        ])
+      ),
+      ({ original, x0, x1, y }) => (x0 === x1 ? dice(n(x1), n(y)) : original)
+    )
     // x+(y+z) -> (x+y)+z
     .with(
       add(P.select("x"), add(P.select("y"), P.select("z"))),
