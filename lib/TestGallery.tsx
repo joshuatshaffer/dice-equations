@@ -20,6 +20,7 @@ export function TestGallery() {
         <Row equation="3/8" />
         <Row equation="d(d5)" />
         <Row equation="d(2/d5)" />
+        <Row equation="lowest(1,2d20);d20;highest(1,2d20);highest(1,3d20)" />
       </tbody>
     </table>
   );
