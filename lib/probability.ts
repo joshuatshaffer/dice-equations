@@ -200,6 +200,18 @@ function highest(
 ): Prob<number> {
   const b = new ProbBuilder<number>();
 
+  // This special case is known to have a faster solution.
+  if (numberOfDiceToKeep === 1) {
+    for (let i = 1; i <= sides; ++i) {
+      b.add(
+        i,
+        (i ** numberOfDice - (i - 1) ** numberOfDice) / sides ** numberOfDice
+      );
+    }
+
+    return b.build();
+  }
+
   const _possibleDice = possibleDice(numberOfDice, sides);
 
   for (const dice of _possibleDice.values()) {
@@ -222,6 +234,19 @@ function lowest(
   sides: number
 ): Prob<number> {
   const b = new ProbBuilder<number>();
+
+  // This special case is known to have a faster solution.
+  if (numberOfDiceToKeep === 1) {
+    for (let i = 1; i <= sides; ++i) {
+      b.add(
+        i,
+        ((sides - i + 1) ** numberOfDice - (sides - i) ** numberOfDice) /
+          sides ** numberOfDice
+      );
+    }
+
+    return b.build();
+  }
 
   const _possibleDice = possibleDice(numberOfDice, sides);
 
