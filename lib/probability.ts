@@ -124,6 +124,24 @@ export function prob(expr: Expression): Prob<number> {
       }
     }
 
+    if (callee === "lowest") {
+      if (
+        expr.args.length !== 2 ||
+        expr.args[1].type !== "BinaryOperation" ||
+        expr.args[1].operator !== "d"
+      ) {
+        return Prob.unit(NaN);
+      } else {
+        const {
+          args: [K, { left: N, right: M }],
+        } = expr;
+
+        return prob(K).flatMap((k) =>
+          prob(N).flatMap((n) => prob(M).flatMap((m) => lowest(k, n, m)))
+        );
+      }
+    }
+
     return Prob.unit(NaN);
   }
 
@@ -188,6 +206,29 @@ function highest(
     b.add(
       [...dice]
         .sort((a, b) => b - a)
+        .slice(0, numberOfDiceToKeep)
+        .reduce((a, b) => a + b, 0),
+      1 / _possibleDice.length
+    );
+  }
+
+  return b.build();
+}
+
+// TODO: `possibleDice` is slow. Replace this with a faster implementation.
+function lowest(
+  numberOfDiceToKeep: number,
+  numberOfDice: number,
+  sides: number
+): Prob<number> {
+  const b = new ProbBuilder<number>();
+
+  const _possibleDice = possibleDice(numberOfDice, sides);
+
+  for (const dice of _possibleDice.values()) {
+    b.add(
+      [...dice]
+        .sort((a, b) => a - b)
         .slice(0, numberOfDiceToKeep)
         .reduce((a, b) => a + b, 0),
       1 / _possibleDice.length
