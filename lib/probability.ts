@@ -1,5 +1,5 @@
 import { Expression } from "./dice-lang/dice-lang-ast";
-import { factorial } from "./math-helpers";
+import { choose, factorial } from "./math-helpers";
 
 type UnaryMathFunctions = {
   [P in keyof Math]: ((x: number) => number) extends Math[P] ? P : never;
@@ -81,7 +81,29 @@ export function prob(expr: Expression): Prob<number> {
     const callee = expr.callee;
 
     if (isElementOf(UnaryMathFunctions, callee)) {
-      return prob(expr.args[0]).map((x) => Math[callee](x));
+      if (expr.args.length !== 1) {
+        return Prob.unit(NaN);
+      } else {
+        return prob(expr.args[0]).map((x) => Math[callee](x));
+      }
+    }
+
+    if (callee === "choose") {
+      if (expr.args.length !== 2) {
+        return Prob.unit(NaN);
+      } else {
+        return prob(expr.args[0]).flatMap((n) =>
+          prob(expr.args[1]).map((k) => choose(n, k))
+        );
+      }
+    }
+
+    if (callee === "factorial") {
+      if (expr.args.length !== 1) {
+        return Prob.unit(NaN);
+      } else {
+        return prob(expr.args[0]).map((n) => factorial(n));
+      }
     }
 
     return Prob.unit(NaN);
@@ -104,6 +126,7 @@ function singleDie(sides: number) {
   return b.build();
 }
 
+// This is related to the Irwin-Hall distribution.
 function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
   const d = sides.flatMap((s) => singleDie(s));
   return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
