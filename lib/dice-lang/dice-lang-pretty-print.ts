@@ -57,7 +57,7 @@ function prettyPrintExpression(
         ? `<mrow><mo>&lfloor;</mo>${args}<mo>&rfloor;</mo></mrow>`
         : expr.callee === "ceil"
         ? `<mrow><mo>&lceil;</mo>${args}<mo>&rceil;</mo></mrow>`
-        : `${expr.callee}<mrow><mo>(</mo>${args}<mo>)</mo></mrow>`
+        : `<mi>${expr.callee}</mi><mrow><mo>(</mo>${args}<mo>)</mo></mrow>`
       : `${expr.callee}(${args})`;
   }
 
