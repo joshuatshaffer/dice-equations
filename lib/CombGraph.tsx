@@ -3,7 +3,7 @@ import { FC } from "react";
 const colors = ["blue", "red", "green", "cyan", "yellow", "magenta"];
 
 export interface CombGraphProps {
-  data: Map<number, number>[];
+  data: readonly ReadonlyMap<number, number>[];
 
   width: number;
   height: number;
@@ -77,7 +77,7 @@ export const CombGraph: FC<CombGraphProps> = ({
   );
 };
 
-function stats(data: Iterable<readonly [number, number]>[]) {
+function stats(data: readonly Iterable<readonly [number, number]>[]) {
   let s = {
     x: { min: Infinity, max: -Infinity },
     y: { min: Infinity, max: -Infinity },

@@ -2,14 +2,46 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-import { ComponentType, useMemo, useState } from "react";
+import { ComponentType, useEffect, useMemo, useState } from "react";
 import { CombGraph } from "./CombGraph";
 import styles from "./DiceAstForm.module.scss";
+import { Program } from "./dice-lang/dice-lang-ast";
 import { diceParser } from "./dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
-import { prob } from "./probability";
 import { useLatest } from "./useLatest";
+
+function useGraphData(parsedProgram: Program | undefined) {
+  const [graphData, setGraphData] = useState<
+    readonly ReadonlyMap<number, number>[] | undefined
+  >(undefined);
+
+  useEffect(() => {
+    if (parsedProgram === undefined) {
+      return;
+    }
+
+    // Compute graph data in a web worker because it can some times be an intensive computation.
+    const worker = new Worker(
+      new URL("./graph-web-worker.ts", import.meta.url)
+    );
+
+    worker.addEventListener(
+      "message",
+      (event: MessageEvent<Map<number, number>[]>) => {
+        setGraphData(event.data);
+      }
+    );
+
+    worker.postMessage(parsedProgram);
+
+    return () => {
+      worker.terminate();
+    };
+  }, [parsedProgram]);
+
+  return graphData;
+}
 
 function clientOnly<P = {}>(Component: ComponentType<P>) {
   return dynamic(() => Promise.resolve(Component), { ssr: false });
@@ -28,17 +60,13 @@ export const DiceAstForm = clientOnly(() => {
     router.replace({ query: { ...router.query, p: value } });
   };
 
-  const parseResult = diceParser.parse(inputValue);
+  const parseResult = useMemo(() => diceParser.parse(inputValue), [inputValue]);
 
   const parsedProgram = useLatest(
     parseResult.status ? parseResult.value : undefined
   );
 
-  const graphData = useMemo(
-    () =>
-      parsedProgram ? parsedProgram.map((p) => new Map(prob(p))) : undefined,
-    [parsedProgram]
-  );
+  const graphData = useGraphData(parsedProgram);
 
   return (
     <div>
