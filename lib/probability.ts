@@ -204,7 +204,7 @@ function* possibleDice2(
 
   for (let i = 1; i <= sides; i++) {
     for (const [j, p] of possibleDice2(numberOfDice - 1, i)) {
-      yield [[i, ...j], p];
+      yield [[i, ...j], p * (1 / sides)];
     }
   }
 }
