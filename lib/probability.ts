@@ -225,11 +225,10 @@ export function irwinHallDistribution(n: number) {
 
   return {
     pdf: (x: number) =>
-      (1 / factorial(n - 1)) *
       [...Array(Math.floor(x) + 1)].reduce(
         (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** (n - 1),
         0
-      ),
+      ) / factorial(n - 1),
     cdf: (x: number) =>
       (1 / factorial(n)) *
       [...Array(Math.floor(x) + 1)].reduce(
