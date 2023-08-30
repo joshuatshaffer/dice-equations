@@ -142,6 +142,30 @@ export function prob(expr: Expression): Prob<number> {
       }
     }
 
+    if (callee === "irwinHall") {
+      if (expr.args.length !== 2) {
+        return Prob.unit(NaN);
+      } else {
+        const {
+          args: [N, S],
+        } = expr;
+
+        return prob(N).flatMap((n) =>
+          prob(S).flatMap((s) => {
+            const d = irwinHallDistribution(n);
+
+            const b = new ProbBuilder<number>();
+
+            for (let i = n; i <= s * n; i++) {
+              b.add(i, d.pdf((i - n / 2) / s) / s);
+            }
+
+            return b.build();
+          })
+        );
+      }
+    }
+
     return Prob.unit(NaN);
   }
 
@@ -189,6 +213,30 @@ function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
   }
 
   return m;
+}
+
+export function irwinHallDistribution(n: number) {
+  if (!Number.isInteger(n)) {
+    throw new Error("n must be an integer");
+  }
+  if (n < 0) {
+    throw new Error("n must be non-negative");
+  }
+
+  return {
+    pdf: (x: number) =>
+      (1 / factorial(n - 1)) *
+      [...Array(Math.floor(x) + 1)].reduce(
+        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** (n - 1),
+        0
+      ),
+    cdf: (x: number) =>
+      (1 / factorial(n)) *
+      [...Array(Math.floor(x) + 1)].reduce(
+        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** n,
+        0
+      ),
+  };
 }
 
 function* possibleDice(
