@@ -163,9 +163,48 @@ function singleDie(sides: number) {
 }
 
 // This is related to the Irwin-Hall distribution.
-function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
+export function dice(
+  numberOfDice: Prob<number>,
+  sides: Prob<number>
+): Prob<number> {
   const d = sides.flatMap((s) => singleDie(s));
   return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
+}
+
+export function irwinHallDistribution(n: number) {
+  if (!Number.isInteger(n)) {
+    throw new Error("n must be an integer");
+  }
+  if (n < 0) {
+    throw new Error("n must be non-negative");
+  }
+
+  return {
+    pdf: (x: number) =>
+      (1 / factorial(n - 1)) *
+      [...Array(Math.floor(x) + 1)].reduce(
+        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** (n - 1),
+        0
+      ),
+    cdf: (x: number) =>
+      (1 / factorial(n)) *
+      [...Array(Math.floor(x) + 1)].reduce(
+        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** n,
+        0
+      ),
+  };
+}
+
+export function newDice(numberOfDice: number, sides: number) {
+  const d = irwinHallDistribution(numberOfDice);
+
+  const b = new ProbBuilder<number>();
+
+  for (let i = numberOfDice; i <= numberOfDice * sides; ++i) {
+    b.add(i, d.cdf(i / sides) - d.cdf((i - 1) / sides));
+  }
+
+  return b.build();
 }
 
 function* possibleDice(
@@ -299,7 +338,7 @@ function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
   return m;
 }
 
-class Prob<T> implements Iterable<[T, number]> {
+export class Prob<T> implements Iterable<[T, number]> {
   private readonly m: ReadonlyMap<T, number>;
 
   constructor(iterable: Iterable<readonly [T, number]>) {
