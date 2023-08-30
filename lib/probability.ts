@@ -207,7 +207,7 @@ export function newDice(numberOfDice: number, sides: number) {
   return b.build();
 }
 
-function* possibleDice(
+export function* possibleDice(
   numberOfDice: number,
   sides: number
 ): Generator<[number[], number], void, void> {
@@ -232,7 +232,7 @@ function* possibleDice(
 }
 
 // WARNING: This is not uniform probability.
-function* possibleDice2(
+export function* possibleDice2(
   numberOfDice: number,
   sides: number
 ): Generator<[number[], number], void, void> {
@@ -243,7 +243,7 @@ function* possibleDice2(
 
   for (let i = 1; i <= sides; i++) {
     for (const [j, p] of possibleDice2(numberOfDice - 1, i)) {
-      yield [[i, ...j], p * (1 / sides)];
+      yield [[i, ...j], p * ((j[0] === i ? 1 : 2) / sides ** numberOfDice)];
     }
   }
 }
@@ -376,7 +376,7 @@ export class Prob<T> implements Iterable<[T, number]> {
   }
 }
 
-class ProbBuilder<T> {
+export class ProbBuilder<T> {
   private readonly m = new Map<T, number>();
 
   add(event: T, probability: number) {

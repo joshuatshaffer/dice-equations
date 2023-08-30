@@ -1,4 +1,40 @@
-import { dice, irwinHallDistribution, newDice, Prob } from "./probability";
+import {
+  dice,
+  irwinHallDistribution,
+  newDice,
+  possibleDice,
+  possibleDice2,
+  Prob,
+  ProbBuilder,
+} from "./probability";
+
+describe("posibleDice", () => {
+  it("works", () => {
+    const n = 3;
+    const s = 3;
+    const fromOld = (() => {
+      const b = new ProbBuilder<string>();
+
+      for (const [dice, p] of possibleDice(n, s)) {
+        b.add(dice.sort((a, b) => b - a).join(","), p);
+      }
+
+      return new Map(b.build());
+    })();
+
+    const fromNew = (() => {
+      const b = new ProbBuilder<string>();
+
+      for (const [dice, p] of possibleDice2(n, s)) {
+        b.add(dice.join(","), p);
+      }
+
+      return new Map(b.build());
+    })();
+
+    expect(fromNew).toEqual(fromOld);
+  });
+});
 
 describe("dice", () => {
   it("ih", () => {
