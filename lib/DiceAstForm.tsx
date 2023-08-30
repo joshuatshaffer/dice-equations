@@ -11,6 +11,41 @@ import { dicePrettyPrint } from "./dice-lang/dice-lang-pretty-print";
 import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
 import { useLatest } from "./useLatest";
 
+function foo({ signal }: { signal: AbortSignal }) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(
+      new URL("./graph-web-worker.ts", import.meta.url)
+    );
+
+    signal.addEventListener(
+      "abort",
+      () => {
+        reject(signal.reason);
+        worker.terminate();
+      },
+      { once: true }
+    );
+
+    worker.addEventListener(
+      "error",
+      (event) => {
+        reject(event);
+      },
+      { once: true }
+    );
+
+    worker.addEventListener(
+      "message",
+      (event: MessageEvent<Map<number, number>[]>) => {
+        resolve(event.data);
+      },
+      { once: true }
+    );
+
+    worker.postMessage(parsedProgram);
+  });
+}
+
 function useGraphData(parsedProgram: Program | undefined) {
   const [graphData, setGraphData] = useState<
     readonly ReadonlyMap<number, number>[] | undefined

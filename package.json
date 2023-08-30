@@ -32,5 +32,8 @@
     "sass": "1.66.1",
     "ts-pattern": "5.0.5",
     "typescript": "5.2.2"
+  },
+  "devDependencies": {
+    "ts-node": "10.9.1"
   }
 }
