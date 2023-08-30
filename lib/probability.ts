@@ -168,28 +168,45 @@ function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
   return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
 }
 
-function possibleDice(numberOfDice: number, sides: number) {
-  return {
-    length: sides ** numberOfDice,
-    values: function* () {
-      const diceCounters: number[] = [...Array(numberOfDice)].map(() => 1);
+function* possibleDice(
+  numberOfDice: number,
+  sides: number
+): Generator<[number[], number], void, void> {
+  const p = 1 / sides ** numberOfDice;
 
-      const incrementCountersAndReturnIsDone = () => {
-        for (let i = 0; i < numberOfDice; i++) {
-          diceCounters[i]++;
-          if (diceCounters[i] <= sides) {
-            return false;
-          }
-          diceCounters[i] = 1;
-        }
-        return true;
-      };
+  const diceCounters: number[] = [...Array(numberOfDice)].map(() => 1);
 
-      do {
-        yield [...diceCounters];
-      } while (!incrementCountersAndReturnIsDone());
-    },
+  const incrementCountersAndReturnIsDone = () => {
+    for (let i = 0; i < numberOfDice; i++) {
+      diceCounters[i]++;
+      if (diceCounters[i] <= sides) {
+        return false;
+      }
+      diceCounters[i] = 1;
+    }
+    return true;
   };
+
+  do {
+    yield [[...diceCounters], p];
+  } while (!incrementCountersAndReturnIsDone());
+}
+
+// WARNING: This is not uniform probability.
+function* possibleDice2(
+  numberOfDice: number,
+  sides: number
+): Generator<[number[], number], void, void> {
+  if (numberOfDice === 0) {
+    yield [[], 1];
+    return;
+  }
+
+  for (let i = 1; i <= sides; i++) {
+    for (const [j, p] of possibleDice2(numberOfDice - 1, i)) {
+      yield [[i, ...j], p];
+    }
+  }
 }
 
 // TODO: `possibleDice` is slow. Replace this with a faster implementation.
@@ -212,15 +229,13 @@ function highest(
     return b.build();
   }
 
-  const _possibleDice = possibleDice(numberOfDice, sides);
-
-  for (const dice of _possibleDice.values()) {
+  for (const [dice, p] of possibleDice(numberOfDice, sides)) {
     b.add(
       [...dice]
         .sort((a, b) => b - a)
         .slice(0, numberOfDiceToKeep)
         .reduce((a, b) => a + b, 0),
-      1 / _possibleDice.length
+      p
     );
   }
 
@@ -248,15 +263,13 @@ function lowest(
     return b.build();
   }
 
-  const _possibleDice = possibleDice(numberOfDice, sides);
-
-  for (const dice of _possibleDice.values()) {
+  for (const [dice, p] of possibleDice(numberOfDice, sides)) {
     b.add(
       [...dice]
         .sort((a, b) => a - b)
         .slice(0, numberOfDiceToKeep)
         .reduce((a, b) => a + b, 0),
-      1 / _possibleDice.length
+      p
     );
   }
 
