@@ -146,11 +146,8 @@ export function prob(expr: Expression): Prob<number> {
       if (expr.args.length !== 2) {
         return Prob.unit(NaN);
       } else {
-        const {
-          args: [n0, s0],
-        } = expr;
-        const n1 = prob(n0);
-        const s1 = prob(s0);
+        const n1 = prob(expr.args[0]);
+        const s1 = prob(expr.args[1]);
 
         return n1.flatMap((n) => s1.flatMap((s) => irwinHallDice(n, s)));
       }
