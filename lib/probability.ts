@@ -163,51 +163,35 @@ function singleDie(sides: number) {
 }
 
 // This is related to the Irwin-Hall distribution.
-export function dice(
-  numberOfDice: Prob<number>,
-  sides: Prob<number>
-): Prob<number> {
+function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
   const d = sides.flatMap((s) => singleDie(s));
   return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
 }
 
-export function irwinHallDistribution(n: number) {
-  if (!Number.isInteger(n)) {
-    throw new Error("n must be an integer");
+function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
+  if (times < 0) {
+    return Prob.unit(NaN);
   }
-  if (n < 0) {
-    throw new Error("n must be non-negative");
+  if (times === 0) {
+    return Prob.unit(0);
   }
 
-  return {
-    pdf: (x: number) =>
-      (1 / factorial(n - 1)) *
-      [...Array(Math.floor(x) + 1)].reduce(
-        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** (n - 1),
-        0
-      ),
-    cdf: (x: number) =>
-      (1 / factorial(n)) *
-      [...Array(Math.floor(x) + 1)].reduce(
-        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** n,
-        0
-      ),
-  };
+  let m = x;
+  let i = 1;
+  while (i < times) {
+    if (2 * i <= times) {
+      m = m.flatMap((w) => m.map((z) => w + z));
+      i *= 2;
+    } else {
+      m = m.flatMap((w) => x.map((z) => w + z));
+      ++i;
+    }
+  }
+
+  return m;
 }
 
-export function newDice(numberOfDice: number, sides: number) {
-  const d = irwinHallDistribution(numberOfDice);
-
-  const b = new ProbBuilder<number>();
-
-  for (let i = numberOfDice; i <= numberOfDice * sides; ++i) {
-    b.add(i, d.cdf(i / sides) - d.cdf((i - 1) / sides));
-  }
-
-  return b.build();
-}
-
-export function* possibleDice(
+function* possibleDice(
   numberOfDice: number,
   sides: number
 ): Generator<[number[], number], void, void> {
@@ -229,23 +213,6 @@ export function* possibleDice(
   do {
     yield [[...diceCounters], p];
   } while (!incrementCountersAndReturnIsDone());
-}
-
-// WARNING: This is not uniform probability.
-export function* possibleDice2(
-  numberOfDice: number,
-  sides: number
-): Generator<[number[], number], void, void> {
-  if (numberOfDice === 0) {
-    yield [[], 1];
-    return;
-  }
-
-  for (let i = 1; i <= sides; i++) {
-    for (const [j, p] of possibleDice2(numberOfDice - 1, i)) {
-      yield [[i, ...j], p * ((j[0] === i ? 1 : 2) / sides ** numberOfDice)];
-    }
-  }
 }
 
 // TODO: `possibleDice` is slow. Replace this with a faster implementation.
@@ -315,30 +282,7 @@ function lowest(
   return b.build();
 }
 
-function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
-  if (times < 0) {
-    return Prob.unit(NaN);
-  }
-  if (times === 0) {
-    return Prob.unit(0);
-  }
-
-  let m = x;
-  let i = 1;
-  while (i < times) {
-    if (2 * i <= times) {
-      m = m.flatMap((w) => m.map((z) => w + z));
-      i *= 2;
-    } else {
-      m = m.flatMap((w) => x.map((z) => w + z));
-      ++i;
-    }
-  }
-
-  return m;
-}
-
-export class Prob<T> implements Iterable<[T, number]> {
+class Prob<T> implements Iterable<[T, number]> {
   private readonly m: ReadonlyMap<T, number>;
 
   constructor(iterable: Iterable<readonly [T, number]>) {
@@ -376,7 +320,7 @@ export class Prob<T> implements Iterable<[T, number]> {
   }
 }
 
-export class ProbBuilder<T> {
+class ProbBuilder<T> {
   private readonly m = new Map<T, number>();
 
   add(event: T, probability: number) {
