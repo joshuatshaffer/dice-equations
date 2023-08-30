@@ -142,27 +142,17 @@ export function prob(expr: Expression): Prob<number> {
       }
     }
 
-    if (callee === "irwinHall") {
+    if (callee === "irwinHallDice") {
       if (expr.args.length !== 2) {
         return Prob.unit(NaN);
       } else {
         const {
-          args: [N, S],
+          args: [n0, s0],
         } = expr;
+        const n1 = prob(n0);
+        const s1 = prob(s0);
 
-        return prob(N).flatMap((n) =>
-          prob(S).flatMap((s) => {
-            const d = irwinHallDistribution(n);
-
-            const b = new ProbBuilder<number>();
-
-            for (let i = n; i <= s * n; i++) {
-              b.add(i, d.pdf((i - n / 2) / s) / s);
-            }
-
-            return b.build();
-          })
-        );
+        return n1.flatMap((n) => s1.flatMap((s) => irwinHallDice(n, s)));
       }
     }
 
@@ -215,7 +205,23 @@ function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
   return m;
 }
 
-export function irwinHallDistribution(n: number) {
+/**
+ * I think this should be equivalent to `dice` but faster. However, this has
+ * some floating point rounding errors.
+ */
+function irwinHallDice(numberOfDice: number, sides: number): Prob<number> {
+  const d = irwinHallDistribution(numberOfDice);
+
+  const b = new ProbBuilder<number>();
+
+  for (let i = numberOfDice; i <= sides * numberOfDice; i++) {
+    b.add(i, d.pdf((i - numberOfDice / 2) / sides) / sides);
+  }
+
+  return b.build();
+}
+
+function irwinHallDistribution(n: number) {
   if (!Number.isInteger(n)) {
     throw new Error("n must be an integer");
   }
@@ -228,9 +234,8 @@ export function irwinHallDistribution(n: number) {
       [...Array(Math.floor(x) + 1)].reduce(
         (a, _, k) =>
           a +
-          (-1) ** k *
-            (n / (factorial(k) * factorial(n - k))) *
-            (x - k) ** (n - 1),
+          ((-1) ** k * n * (x - k) ** (n - 1)) /
+            (factorial(k) * factorial(n - k)),
         0
       ),
     cdf: (x: number) =>
