@@ -249,7 +249,41 @@ function* possibleDice(
   } while (!incrementCountersAndReturnIsDone());
 }
 
-// TODO: `possibleDice` is slow. Replace this with a faster implementation.
+function a2s(a: number[]) {
+  return a.join(",");
+}
+
+function s2a(s: string) {
+  return s.split(",").map((x) => Number(x));
+}
+
+export function setsOfDice(numberOfDice: number, sides: number): Pmf<string> {
+  const x = Pmf.build<string>((b) => {
+    for (let i = 1; i <= sides; ++i) {
+      b(a2s([i]), 1 / sides);
+    }
+  });
+
+  let m = x;
+  let i = 1;
+  while (i < numberOfDice) {
+    if (2 * i <= numberOfDice) {
+      m = m.flatMap((w) =>
+        m.map((z) => a2s([...s2a(w), ...s2a(z)].sort((a, b) => a - b)))
+      );
+      i *= 2;
+    } else {
+      m = m.flatMap((w) =>
+        x.map((z) => a2s([...s2a(w), ...s2a(z)].sort((a, b) => a - b)))
+      );
+      ++i;
+    }
+  }
+
+  return m;
+}
+
+// TODO: `setsOfDice` is slow. Replace this with a faster implementation.
 function highest(
   numberOfDiceToKeep: number,
   numberOfDice: number,
@@ -268,19 +302,17 @@ function highest(
   }
 
   return Pmf.build((b) => {
-    for (const [dice, p] of possibleDice(numberOfDice, sides)) {
+    for (const [dice1, p] of setsOfDice(numberOfDice, sides)) {
+      const dice = s2a(dice1);
       b(
-        [...dice]
-          .sort((a, b) => b - a)
-          .slice(0, numberOfDiceToKeep)
-          .reduce((a, b) => a + b, 0),
+        dice.slice(dice.length - numberOfDiceToKeep).reduce((a, b) => a + b, 0),
         p
       );
     }
   });
 }
 
-// TODO: `possibleDice` is slow. Replace this with a faster implementation.
+// TODO: `setsOfDice` is slow. Replace this with a faster implementation.
 function lowest(
   numberOfDiceToKeep: number,
   numberOfDice: number,
@@ -300,12 +332,10 @@ function lowest(
   }
 
   return Pmf.build((b) => {
-    for (const [dice, p] of possibleDice(numberOfDice, sides)) {
+    for (const [dice1, p] of setsOfDice(numberOfDice, sides)) {
+      const dice = s2a(dice1);
       b(
-        [...dice]
-          .sort((a, b) => a - b)
-          .slice(0, numberOfDiceToKeep)
-          .reduce((a, b) => a + b, 0),
+        dice.slice(0, numberOfDiceToKeep).reduce((a, b) => a + b, 0),
         p
       );
     }
