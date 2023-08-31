@@ -153,6 +153,17 @@ export function prob(expr: Expression): Prob<number> {
       }
     }
 
+    if (callee === "analyticDice") {
+      if (expr.args.length !== 2) {
+        return Prob.unit(NaN);
+      } else {
+        const n1 = prob(expr.args[0]);
+        const s1 = prob(expr.args[1]);
+
+        return n1.flatMap((n) => s1.flatMap((s) => analyticDice(n, s)));
+      }
+    }
+
     return Prob.unit(NaN);
   }
 
@@ -200,6 +211,33 @@ function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
   }
 
   return m;
+}
+
+/**
+ * An analytic solution for the PMF of the sum of n dice with s sides.
+ *
+ * Adapted from https://towardsdatascience.com/modelling-the-probability-distributions-of-dice-b6ecf87b24ea
+ */
+function analyticDice(n: number, s: number): Prob<number> {
+  const b = new ProbBuilder<number>();
+
+  for (let T = n; T <= s * n; T++) {
+    b.add(
+      T,
+      (1 / s) ** n *
+        [...Array(Math.floor((T - n) / s) + 1)].reduce(
+          (a, _, k) =>
+            a +
+            (-1) ** k *
+              choose(n, k) *
+              (factorial(T - s * k - 1) /
+                (factorial(T - s * k - n) * factorial(n - 1))),
+          0
+        )
+    );
+  }
+
+  return b.build();
 }
 
 /**
