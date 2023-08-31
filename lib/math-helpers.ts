@@ -31,6 +31,20 @@ export function choose(n: number, k: number): number {
   return factorial(n) / (factorial(k) * factorial(n - k));
 }
 
+export function binom(n: number, k: number) {
+  if (k < 0 || k > n) {
+    return 0;
+  }
+
+  let a = 1;
+
+  for (let i = 0; i < k; i++) {
+    a = (a * (n - i)) / (i + 1);
+  }
+
+  return a;
+}
+
 export function fromThenTo({
   from,
   then,
