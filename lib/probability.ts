@@ -142,17 +142,6 @@ export function prob(expr: Expression): Prob<number> {
       }
     }
 
-    if (callee === "irwinHallDice") {
-      if (expr.args.length !== 2) {
-        return Prob.unit(NaN);
-      } else {
-        const n1 = prob(expr.args[0]);
-        const s1 = prob(expr.args[1]);
-
-        return n1.flatMap((n) => s1.flatMap((s) => irwinHallDice(n, s)));
-      }
-    }
-
     if (callee === "analyticDice") {
       if (expr.args.length !== 2) {
         return Prob.unit(NaN);
@@ -238,48 +227,6 @@ function analyticDice(n: number, s: number): Prob<number> {
   }
 
   return b.build();
-}
-
-/**
- * I think this should be equivalent to `dice` but faster. However, this has
- * some floating point rounding errors.
- */
-function irwinHallDice(numberOfDice: number, sides: number): Prob<number> {
-  const d = irwinHallDistribution(numberOfDice);
-
-  const b = new ProbBuilder<number>();
-
-  for (let i = numberOfDice; i <= sides * numberOfDice; i++) {
-    b.add(i, d.pdf((i - numberOfDice / 2) / sides) / sides);
-  }
-
-  return b.build();
-}
-
-function irwinHallDistribution(n: number) {
-  if (!Number.isInteger(n)) {
-    throw new Error("n must be an integer");
-  }
-  if (n < 0) {
-    throw new Error("n must be non-negative");
-  }
-
-  return {
-    pdf: (x: number) =>
-      [...Array(Math.floor(x) + 1)].reduce(
-        (a, _, k) =>
-          a +
-          ((-1) ** k * n * (x - k) ** (n - 1)) /
-            (factorial(k) * factorial(n - k)),
-        0
-      ),
-    cdf: (x: number) =>
-      (1 / factorial(n)) *
-      [...Array(Math.floor(x) + 1)].reduce(
-        (a, _, k) => a + (-1) ** k * choose(n, k) * (x - k) ** n,
-        0
-      ),
-  };
 }
 
 function* possibleDice(
