@@ -174,30 +174,7 @@ function singleDie(sides: number) {
 // This is related to the Irwin-Hall distribution.
 function dice(numberOfDice: Pmf<number>, sides: Pmf<number>): Pmf<number> {
   const d = sides.flatMap((s) => singleDie(s));
-  return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
-}
-
-function sumOfRepeats(times: number, x: Pmf<number>): Pmf<number> {
-  if (times < 0) {
-    return Pmf.unit(NaN);
-  }
-  if (times === 0) {
-    return Pmf.unit(0);
-  }
-
-  let m = x;
-  let i = 1;
-  while (i < times) {
-    if (2 * i <= times) {
-      m = m.flatMap((w) => m.map((z) => w + z));
-      i *= 2;
-    } else {
-      m = m.flatMap((w) => x.map((z) => w + z));
-      ++i;
-    }
-  }
-
-  return m;
+  return numberOfDice.flatMap((n) => monoidMult((w, z) => w + z, n, d));
 }
 
 /**
@@ -257,47 +234,46 @@ function s2a(s: string) {
   return s.split(",").map((x) => Number(x));
 }
 
-export function setsOfDice(
+function setsOfDice(
   highest: boolean,
   numberOfDiceToKeep: number,
   numberOfDice: number,
   sides: number
 ): Pmf<number> {
-  const x = Pmf.build<string>((b) => {
-    for (let i = 1; i <= sides; ++i) {
-      b(a2s([i]), 1 / sides);
-    }
-  });
+  return monoidMult(
+    (w, z) =>
+      a2s(
+        [...s2a(w), ...s2a(z)]
+          .sort((a, b) => (highest ? b - a : a - b))
+          .slice(0, numberOfDiceToKeep)
+      ),
+    numberOfDice,
+    Pmf.build<string>((b) => {
+      for (let i = 1; i <= sides; ++i) {
+        b(a2s([i]), 1 / sides);
+      }
+    })
+  ).map((x) => s2a(x).reduce((a, b) => a + b, 0));
+}
 
+function monoidMult<T>(
+  op: (w: T, z: T) => T,
+  times: number,
+  x: Pmf<T>
+): Pmf<T> {
   let m = x;
   let i = 1;
-  while (i < numberOfDice) {
-    if (2 * i <= numberOfDice) {
-      m = m.flatMap((w) =>
-        m.map((z) =>
-          a2s(
-            [...s2a(w), ...s2a(z)]
-              .sort((a, b) => (highest ? b - a : a - b))
-              .slice(0, numberOfDiceToKeep)
-          )
-        )
-      );
+  while (i < times) {
+    if (2 * i <= times) {
+      m = m.flatMap((w) => m.map((z) => op(w, z)));
       i *= 2;
     } else {
-      m = m.flatMap((w) =>
-        x.map((z) =>
-          a2s(
-            [...s2a(w), ...s2a(z)]
-              .sort((a, b) => (highest ? b - a : a - b))
-              .slice(0, numberOfDiceToKeep)
-          )
-        )
-      );
+      m = m.flatMap((w) => x.map((z) => op(w, z)));
       ++i;
     }
   }
 
-  return m.map((x) => s2a(x).reduce((a, b) => a + b, 0));
+  return m;
 }
 
 // TODO: `setsOfDice` is slow. Replace this with a faster implementation.
