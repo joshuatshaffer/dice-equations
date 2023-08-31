@@ -257,7 +257,12 @@ function s2a(s: string) {
   return s.split(",").map((x) => Number(x));
 }
 
-export function setsOfDice(numberOfDice: number, sides: number): Pmf<string> {
+export function setsOfDice(
+  highest: boolean,
+  numberOfDiceToKeep: number,
+  numberOfDice: number,
+  sides: number
+): Pmf<number> {
   const x = Pmf.build<string>((b) => {
     for (let i = 1; i <= sides; ++i) {
       b(a2s([i]), 1 / sides);
@@ -269,18 +274,30 @@ export function setsOfDice(numberOfDice: number, sides: number): Pmf<string> {
   while (i < numberOfDice) {
     if (2 * i <= numberOfDice) {
       m = m.flatMap((w) =>
-        m.map((z) => a2s([...s2a(w), ...s2a(z)].sort((a, b) => a - b)))
+        m.map((z) =>
+          a2s(
+            [...s2a(w), ...s2a(z)]
+              .sort((a, b) => (highest ? b - a : a - b))
+              .slice(0, numberOfDiceToKeep)
+          )
+        )
       );
       i *= 2;
     } else {
       m = m.flatMap((w) =>
-        x.map((z) => a2s([...s2a(w), ...s2a(z)].sort((a, b) => a - b)))
+        x.map((z) =>
+          a2s(
+            [...s2a(w), ...s2a(z)]
+              .sort((a, b) => (highest ? b - a : a - b))
+              .slice(0, numberOfDiceToKeep)
+          )
+        )
       );
       ++i;
     }
   }
 
-  return m;
+  return m.map((x) => s2a(x).reduce((a, b) => a + b, 0));
 }
 
 // TODO: `setsOfDice` is slow. Replace this with a faster implementation.
@@ -301,15 +318,7 @@ function highest(
     });
   }
 
-  return Pmf.build((b) => {
-    for (const [dice1, p] of setsOfDice(numberOfDice, sides)) {
-      const dice = s2a(dice1);
-      b(
-        dice.slice(dice.length - numberOfDiceToKeep).reduce((a, b) => a + b, 0),
-        p
-      );
-    }
-  });
+  return setsOfDice(true, numberOfDiceToKeep, numberOfDice, sides);
 }
 
 // TODO: `setsOfDice` is slow. Replace this with a faster implementation.
@@ -331,15 +340,7 @@ function lowest(
     });
   }
 
-  return Pmf.build((b) => {
-    for (const [dice1, p] of setsOfDice(numberOfDice, sides)) {
-      const dice = s2a(dice1);
-      b(
-        dice.slice(0, numberOfDiceToKeep).reduce((a, b) => a + b, 0),
-        p
-      );
-    }
-  });
+  return setsOfDice(false, numberOfDiceToKeep, numberOfDice, sides);
 }
 
 class Pmf<T> implements Iterable<[T, number]> {
