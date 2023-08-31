@@ -32,13 +32,13 @@ function isElementOf<T>(s: readonly T[], x: unknown): x is T {
   return (s as readonly unknown[]).includes(x);
 }
 
-export function prob(expr: Expression): Prob<number> {
+export function pmf(expr: Expression): Pmf<number> {
   if (expr.type === "NumberLiteral") {
-    return Prob.unit(expr.value);
+    return Pmf.unit(expr.value);
   }
 
   if (expr.type === "UnaryOperation") {
-    return prob(expr.operand).map((x) => {
+    return pmf(expr.operand).map((x) => {
       switch (expr.operator) {
         case "-":
           return -x;
@@ -49,8 +49,8 @@ export function prob(expr: Expression): Prob<number> {
   }
 
   if (expr.type === "BinaryOperation") {
-    const left = prob(expr.left);
-    const right = prob(expr.right);
+    const left = pmf(expr.left);
+    const right = pmf(expr.right);
     const operator = expr.operator;
 
     if (operator === "d") {
@@ -82,27 +82,27 @@ export function prob(expr: Expression): Prob<number> {
 
     if (isElementOf(UnaryMathFunctions, callee)) {
       if (expr.args.length !== 1) {
-        return Prob.unit(NaN);
+        return Pmf.unit(NaN);
       } else {
-        return prob(expr.args[0]).map((x) => Math[callee](x));
+        return pmf(expr.args[0]).map((x) => Math[callee](x));
       }
     }
 
     if (callee === "choose") {
       if (expr.args.length !== 2) {
-        return Prob.unit(NaN);
+        return Pmf.unit(NaN);
       } else {
-        return prob(expr.args[0]).flatMap((n) =>
-          prob(expr.args[1]).map((k) => choose(n, k))
+        return pmf(expr.args[0]).flatMap((n) =>
+          pmf(expr.args[1]).map((k) => choose(n, k))
         );
       }
     }
 
     if (callee === "factorial") {
       if (expr.args.length !== 1) {
-        return Prob.unit(NaN);
+        return Pmf.unit(NaN);
       } else {
-        return prob(expr.args[0]).map((n) => factorial(n));
+        return pmf(expr.args[0]).map((n) => factorial(n));
       }
     }
 
@@ -112,14 +112,14 @@ export function prob(expr: Expression): Prob<number> {
         expr.args[1].type !== "BinaryOperation" ||
         expr.args[1].operator !== "d"
       ) {
-        return Prob.unit(NaN);
+        return Pmf.unit(NaN);
       } else {
         const {
           args: [K, { left: N, right: M }],
         } = expr;
 
-        return prob(K).flatMap((k) =>
-          prob(N).flatMap((n) => prob(M).flatMap((m) => highest(k, n, m)))
+        return pmf(K).flatMap((k) =>
+          pmf(N).flatMap((n) => pmf(M).flatMap((m) => highest(k, n, m)))
         );
       }
     }
@@ -130,30 +130,30 @@ export function prob(expr: Expression): Prob<number> {
         expr.args[1].type !== "BinaryOperation" ||
         expr.args[1].operator !== "d"
       ) {
-        return Prob.unit(NaN);
+        return Pmf.unit(NaN);
       } else {
         const {
           args: [K, { left: N, right: M }],
         } = expr;
 
-        return prob(K).flatMap((k) =>
-          prob(N).flatMap((n) => prob(M).flatMap((m) => lowest(k, n, m)))
+        return pmf(K).flatMap((k) =>
+          pmf(N).flatMap((n) => pmf(M).flatMap((m) => lowest(k, n, m)))
         );
       }
     }
 
     if (callee === "analyticDice") {
       if (expr.args.length !== 2) {
-        return Prob.unit(NaN);
+        return Pmf.unit(NaN);
       } else {
-        const n1 = prob(expr.args[0]);
-        const s1 = prob(expr.args[1]);
+        const n1 = pmf(expr.args[0]);
+        const s1 = pmf(expr.args[1]);
 
         return n1.flatMap((n) => s1.flatMap((s) => analyticDice(n, s)));
       }
     }
 
-    return Prob.unit(NaN);
+    return Pmf.unit(NaN);
   }
 
   throw new TypeError("Invalid node type");
@@ -161,10 +161,10 @@ export function prob(expr: Expression): Prob<number> {
 
 function singleDie(sides: number) {
   if (sides < 1) {
-    return Prob.unit(NaN);
+    return Pmf.unit(NaN);
   }
 
-  const b = new ProbBuilder<number>();
+  const b = new PmfBuilder<number>();
 
   for (let i = 1; i <= sides; ++i) {
     b.add(i, 1 / sides);
@@ -174,17 +174,17 @@ function singleDie(sides: number) {
 }
 
 // This is related to the Irwin-Hall distribution.
-function dice(numberOfDice: Prob<number>, sides: Prob<number>): Prob<number> {
+function dice(numberOfDice: Pmf<number>, sides: Pmf<number>): Pmf<number> {
   const d = sides.flatMap((s) => singleDie(s));
   return numberOfDice.flatMap((n) => sumOfRepeats(n, d));
 }
 
-function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
+function sumOfRepeats(times: number, x: Pmf<number>): Pmf<number> {
   if (times < 0) {
-    return Prob.unit(NaN);
+    return Pmf.unit(NaN);
   }
   if (times === 0) {
-    return Prob.unit(0);
+    return Pmf.unit(0);
   }
 
   let m = x;
@@ -207,8 +207,8 @@ function sumOfRepeats(times: number, x: Prob<number>): Prob<number> {
  *
  * Adapted from https://towardsdatascience.com/modelling-the-probability-distributions-of-dice-b6ecf87b24ea
  */
-function analyticDice(n: number, s: number): Prob<number> {
-  const b = new ProbBuilder<number>();
+function analyticDice(n: number, s: number): Pmf<number> {
+  const b = new PmfBuilder<number>();
 
   for (let T = n; T <= s * n; T++) {
     b.add(
@@ -258,8 +258,8 @@ function highest(
   numberOfDiceToKeep: number,
   numberOfDice: number,
   sides: number
-): Prob<number> {
-  const b = new ProbBuilder<number>();
+): Pmf<number> {
+  const b = new PmfBuilder<number>();
 
   // This special case is known to have a faster solution.
   if (numberOfDiceToKeep === 1) {
@@ -291,8 +291,8 @@ function lowest(
   numberOfDiceToKeep: number,
   numberOfDice: number,
   sides: number
-): Prob<number> {
-  const b = new ProbBuilder<number>();
+): Pmf<number> {
+  const b = new PmfBuilder<number>();
 
   // This special case is known to have a faster solution.
   if (numberOfDiceToKeep === 1) {
@@ -320,7 +320,7 @@ function lowest(
   return b.build();
 }
 
-class Prob<T> implements Iterable<[T, number]> {
+class Pmf<T> implements Iterable<[T, number]> {
   private readonly m: ReadonlyMap<T, number>;
 
   constructor(iterable: Iterable<readonly [T, number]>) {
@@ -331,8 +331,8 @@ class Prob<T> implements Iterable<[T, number]> {
     return this.m.entries();
   }
 
-  map<U>(f: (x: T) => U): Prob<U> {
-    const b = new ProbBuilder<U>();
+  map<U>(f: (x: T) => U): Pmf<U> {
+    const b = new PmfBuilder<U>();
 
     for (const [x, p] of this) {
       b.add(f(x), p);
@@ -341,8 +341,8 @@ class Prob<T> implements Iterable<[T, number]> {
     return b.build();
   }
 
-  flatMap<U>(f: (x: T) => Prob<U>): Prob<U> {
-    const b = new ProbBuilder<U>();
+  flatMap<U>(f: (x: T) => Pmf<U>): Pmf<U> {
+    const b = new PmfBuilder<U>();
 
     for (const [x, xp] of this) {
       for (const [y, yp] of f(x)) {
@@ -354,11 +354,11 @@ class Prob<T> implements Iterable<[T, number]> {
   }
 
   static unit<T>(event: T) {
-    return new Prob([[event, 1]]);
+    return new Pmf([[event, 1]]);
   }
 }
 
-class ProbBuilder<T> {
+class PmfBuilder<T> {
   private readonly m = new Map<T, number>();
 
   add(event: T, probability: number) {
@@ -366,6 +366,6 @@ class ProbBuilder<T> {
   }
 
   build() {
-    return new Prob(this.m);
+    return new Pmf(this.m);
   }
 }
