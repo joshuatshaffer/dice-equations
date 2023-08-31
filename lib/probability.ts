@@ -164,13 +164,11 @@ function singleDie(sides: number) {
     return Pmf.unit(NaN);
   }
 
-  const b = new PmfBuilder<number>();
-
-  for (let i = 1; i <= sides; ++i) {
-    b.add(i, 1 / sides);
-  }
-
-  return b.build();
+  return Pmf.fromGenerator(function* () {
+    for (let i = 1; i <= sides; ++i) {
+      yield [i, 1 / sides];
+    }
+  });
 }
 
 // This is related to the Irwin-Hall distribution.
@@ -208,25 +206,23 @@ function sumOfRepeats(times: number, x: Pmf<number>): Pmf<number> {
  * Adapted from https://towardsdatascience.com/modelling-the-probability-distributions-of-dice-b6ecf87b24ea
  */
 function analyticDice(n: number, s: number): Pmf<number> {
-  const b = new PmfBuilder<number>();
-
-  for (let T = n; T <= s * n; T++) {
-    b.add(
-      T,
-      (1 / s) ** n *
-        [...Array(Math.floor((T - n) / s) + 1)].reduce(
-          (a, _, k) =>
-            a +
-            (-1) ** k *
-              choose(n, k) *
-              (factorial(T - s * k - 1) /
-                (factorial(T - s * k - n) * factorial(n - 1))),
-          0
-        )
-    );
-  }
-
-  return b.build();
+  return Pmf.fromGenerator(function* () {
+    for (let T = n; T <= s * n; T++) {
+      yield [
+        T,
+        (1 / s) ** n *
+          [...Array(Math.floor((T - n) / s) + 1)].reduce(
+            (a, _, k) =>
+              a +
+              (-1) ** k *
+                choose(n, k) *
+                (factorial(T - s * k - 1) /
+                  (factorial(T - s * k - n) * factorial(n - 1))),
+            0
+          ),
+      ];
+    }
+  });
 }
 
 function* possibleDice(
@@ -259,31 +255,29 @@ function highest(
   numberOfDice: number,
   sides: number
 ): Pmf<number> {
-  const b = new PmfBuilder<number>();
-
   // This special case is known to have a faster solution.
   if (numberOfDiceToKeep === 1) {
-    for (let i = 1; i <= sides; ++i) {
-      b.add(
-        i,
-        (i ** numberOfDice - (i - 1) ** numberOfDice) / sides ** numberOfDice
-      );
+    return Pmf.fromGenerator(function* () {
+      for (let i = 1; i <= sides; ++i) {
+        yield [
+          i,
+          (i ** numberOfDice - (i - 1) ** numberOfDice) / sides ** numberOfDice,
+        ];
+      }
+    });
+  }
+
+  return Pmf.fromGenerator(function* () {
+    for (const [dice, p] of possibleDice(numberOfDice, sides)) {
+      yield [
+        [...dice]
+          .sort((a, b) => b - a)
+          .slice(0, numberOfDiceToKeep)
+          .reduce((a, b) => a + b, 0),
+        p,
+      ];
     }
-
-    return b.build();
-  }
-
-  for (const [dice, p] of possibleDice(numberOfDice, sides)) {
-    b.add(
-      [...dice]
-        .sort((a, b) => b - a)
-        .slice(0, numberOfDiceToKeep)
-        .reduce((a, b) => a + b, 0),
-      p
-    );
-  }
-
-  return b.build();
+  });
 }
 
 // TODO: `possibleDice` is slow. Replace this with a faster implementation.
@@ -292,80 +286,68 @@ function lowest(
   numberOfDice: number,
   sides: number
 ): Pmf<number> {
-  const b = new PmfBuilder<number>();
-
   // This special case is known to have a faster solution.
   if (numberOfDiceToKeep === 1) {
-    for (let i = 1; i <= sides; ++i) {
-      b.add(
-        i,
-        ((sides - i + 1) ** numberOfDice - (sides - i) ** numberOfDice) /
-          sides ** numberOfDice
-      );
+    return Pmf.fromGenerator(function* () {
+      for (let i = 1; i <= sides; ++i) {
+        yield [
+          i,
+          ((sides - i + 1) ** numberOfDice - (sides - i) ** numberOfDice) /
+            sides ** numberOfDice,
+        ];
+      }
+    });
+  }
+
+  return Pmf.fromGenerator(function* () {
+    for (const [dice, p] of possibleDice(numberOfDice, sides)) {
+      yield [
+        [...dice]
+          .sort((a, b) => a - b)
+          .slice(0, numberOfDiceToKeep)
+          .reduce((a, b) => a + b, 0),
+        p,
+      ];
     }
-
-    return b.build();
-  }
-
-  for (const [dice, p] of possibleDice(numberOfDice, sides)) {
-    b.add(
-      [...dice]
-        .sort((a, b) => a - b)
-        .slice(0, numberOfDiceToKeep)
-        .reduce((a, b) => a + b, 0),
-      p
-    );
-  }
-
-  return b.build();
+  });
 }
 
 class Pmf<T> implements Iterable<[T, number]> {
-  private readonly m: ReadonlyMap<T, number>;
-
-  constructor(iterable: Iterable<readonly [T, number]>) {
-    this.m = iterable instanceof Map ? iterable : new Map<T, number>(iterable);
-  }
+  private constructor(private readonly m: ReadonlyMap<T, number>) {}
 
   [Symbol.iterator](): Iterator<[T, number]> {
     return this.m.entries();
   }
 
   map<U>(f: (x: T) => U): Pmf<U> {
-    const b = new PmfBuilder<U>();
-
-    for (const [x, p] of this) {
-      b.add(f(x), p);
-    }
-
-    return b.build();
+    const dis = this;
+    return Pmf.fromGenerator(function* () {
+      for (const [x, p] of dis) {
+        yield [f(x), p];
+      }
+    });
   }
 
   flatMap<U>(f: (x: T) => Pmf<U>): Pmf<U> {
-    const b = new PmfBuilder<U>();
-
-    for (const [x, xp] of this) {
-      for (const [y, yp] of f(x)) {
-        b.add(y, xp * yp);
+    const dis = this;
+    return Pmf.fromGenerator(function* () {
+      for (const [x, xp] of dis) {
+        for (const [y, yp] of f(x)) {
+          yield [y, xp * yp];
+        }
       }
-    }
-
-    return b.build();
+    });
   }
 
   static unit<T>(event: T) {
-    return new Pmf([[event, 1]]);
-  }
-}
-
-class PmfBuilder<T> {
-  private readonly m = new Map<T, number>();
-
-  add(event: T, probability: number) {
-    this.m.set(event, (this.m.get(event) ?? 0) + probability);
+    return new Pmf(new Map([[event, 1]]));
   }
 
-  build() {
-    return new Pmf(this.m);
+  static fromGenerator<T>(g: () => Generator<[T, number], void, void>) {
+    const m = new Map<T, number>();
+    for (const [x, p] of g()) {
+      m.set(x, (m.get(x) ?? 0) + p);
+    }
+    return new Pmf(m);
   }
 }
