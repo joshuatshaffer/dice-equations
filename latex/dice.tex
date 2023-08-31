@@ -17,6 +17,14 @@
 
 \begin{document}
 
+From \href{https://towardsdatascience.com/modelling-the-probability-distributions-of-dice-b6ecf87b24ea}
+{Modelling the probability distributions of dice | by Tom Leyshon | Towards Data Science}
+
+\begin{align}
+    P(n\d s=T) & =\p{\sum_{k=0}^{\left\lfloor \frac{T-n}{s}\right\rfloor}\p{-1}^k\frac{n!}{\p{n-k}!k!}\frac{\p{T-sk-1}!}{\p{T-sk-n}!\p{n-1}!}}\p{\frac{1}{s}}^n \\
+    P(n\d s=T) & =\p{\frac{1}{s}}^n\sum_{k=0}^{\left\lfloor \frac{T-n}{s}\right\rfloor}\p{-1}^k{n \choose k}\frac{\p{T-sk-1}!}{\p{T-sk-n}!\p{n-1}!}
+\end{align}
+
 \begin{align}
     \d s        & = 1\d s                                                  \\
     n\d 1       & = n                                                      \\
