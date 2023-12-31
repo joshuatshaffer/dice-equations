@@ -319,10 +319,12 @@ function lowest(
   return setsOfDice(false, numberOfDiceToKeep, numberOfDice, sides);
 }
 
-class Pmf<T> implements Iterable<[T, number]> {
+type PmfEntry<T> = [event: T, probability: number];
+
+class Pmf<T> implements Iterable<PmfEntry<T>> {
   private constructor(private readonly m: ReadonlyMap<T, number>) {}
 
-  [Symbol.iterator](): Iterator<[T, number]> {
+  [Symbol.iterator](): Iterator<PmfEntry<T>> {
     return this.m.entries();
   }
 
