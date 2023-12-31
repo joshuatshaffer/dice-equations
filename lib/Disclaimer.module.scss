@@ -1,5 +1,6 @@
-$bg: black;
-$fg: rgb(255, 191, 0);
+$bg: #e1e1e1;
+$fg: #b4b4b4;
+$text-color: black;
 $stripe-width: 4px;
 
 .disclaimer {
@@ -18,6 +19,6 @@ $stripe-width: 4px;
   margin: 0;
   padding: 1rem;
   background: $bg;
-  color: $fg;
+  color: $text-color;
   text-align: center;
 }
