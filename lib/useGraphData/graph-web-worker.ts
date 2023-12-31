@@ -1,5 +1,5 @@
-import { Program } from "./dice-lang/dice-lang-ast";
-import { pmf } from "./probability";
+import { Program } from "../dice-lang/dice-lang-ast";
+import { pmf } from "../probability";
 
 addEventListener(
   "message",
