@@ -7,15 +7,21 @@ export interface NumberLiteral extends NodeBase {
   value: number;
 }
 
+export const unaryOperators = ["-", "!"] as const;
+export type UnaryOperator = (typeof unaryOperators)[number];
+
 export interface UnaryOperation extends NodeBase {
   type: "UnaryOperation";
-  operator: "-" | "!";
+  operator: UnaryOperator;
   operand: Expression;
 }
 
+export const binaryOperators = ["+", "-", "*", "/", "**", "%", "d"] as const;
+export type BinaryOperator = (typeof binaryOperators)[number];
+
 export interface BinaryOperation extends NodeBase {
   type: "BinaryOperation";
-  operator: "+" | "-" | "*" | "/" | "**" | "%" | "d";
+  operator: BinaryOperator;
   left: Expression;
   right: Expression;
 }
