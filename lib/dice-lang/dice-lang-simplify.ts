@@ -10,8 +10,9 @@ import {
   Expression,
   mul,
   n,
+  neg,
   Program,
-  uo,
+  sub,
 } from "./dice-lang-ast";
 
 // This is a work in progress.
@@ -119,9 +120,24 @@ const replacements = (expr: Expression) =>
       mul(div(P.select("y"), P.select("z")), P.select("x")),
       ({ x, y, z }) => div(mul(x, y), z)
     )
-    .with(uo(P.select("o"), P.select("x")), ({ o, x }) =>
-      uo(o, simplifyExpression(x))
-    )
+    // -(x) -> -x
+    .with(neg(n(P.select("x"))), ({ x }) => n(-x))
+    // -(-(x)) -> x
+    .with(neg(neg(P.select("x"))), ({ x }) => x)
+    // -(x-y) -> y-x
+    .with(neg(sub(P.select("x"), P.select("y"))), ({ x, y }) => sub(y, x))
+    // -(x+y) -> (-x)-y
+    .with(neg(add(P.select("x"), P.select("y"))), ({ x, y }) => sub(neg(x), y))
+    // x+(-y) -> x-y
+    .with(add(P.select("x"), neg(P.select("y"))), ({ x, y }) => sub(x, y))
+    // (-x)+y -> y-x
+    .with(add(neg(P.select("x")), P.select("y")), ({ x, y }) => sub(y, x))
+    // x-(-y) -> x+y
+    .with(sub(P.select("x"), neg(P.select("y"))), ({ x, y }) => add(x, y))
+    // -(x*y) -> (-x)*y
+    .with(neg(mul(P.select("x"), P.select("y"))), ({ x, y }) => mul(neg(x), y))
+    // -(x/y) -> (-x)/y
+    .with(neg(div(P.select("x"), P.select("y"))), ({ x, y }) => div(neg(x), y))
     .with(bo(P.select("x"), P.select("o"), P.select("y")), ({ x, o, y }) =>
       bo(simplifyExpression(x), o, simplifyExpression(y))
     )

@@ -10,6 +10,11 @@ describe("diceLangSimplify", () => {
     "highest(2, 2d8) -> 2d8",
     "lowest(1, d5) -> d5",
     "lowest(2, 2d8) -> 2d8",
+    "-(4) -> -4",
+    "-(-(d2)) -> d2",
+    "1 - (-(d2)) -> 1 + d2",
+    "1 + (-(d2)) -> 1 - d2",
+    "-(1 - d2) -> d2 - 1",
   ] as const;
 
   for (const testCase of testCases) {
