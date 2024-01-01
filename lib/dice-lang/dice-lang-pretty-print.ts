@@ -23,9 +23,12 @@ export function dicePrettyPrint(
       .join("")}</mtable></math>`;
   }
 
-  return program
-    .map((expr) => prettyPrintExpression(expr, options))
-    .join(options?.format === "min" ? ";" : ";\n");
+  return (
+    program
+      .map((expr) => prettyPrintExpression(expr, options))
+      .join(options?.format === "min" ? ";" : ";\n") +
+    (options?.format === "min" || program.length < 2 ? "" : ";")
+  );
 }
 
 function prettyPrintExpression(
