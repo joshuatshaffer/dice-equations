@@ -9,6 +9,8 @@ import {
   NumberLiteral,
   Program,
   Statement,
+  UnaryOperation,
+  uo,
 } from "./dice-lang-ast";
 
 interface DiceLanguage {
@@ -53,7 +55,12 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
     P.alt(
       r.expr.wrap(P.string("("), P.string(")")),
       r.callExpression,
-      r.numberLiteral
+      r.numberLiteral,
+      P.seqMap(
+        P.string("-").trim(r._),
+        r.factor,
+        (operator, operand): UnaryOperation => uo(operator, operand)
+      )
     ),
 
   factor1: (r) =>

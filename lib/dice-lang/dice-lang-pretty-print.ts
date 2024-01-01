@@ -1,5 +1,4 @@
-import { match, P } from "ts-pattern";
-import { Expression, n, Program } from "./dice-lang-ast";
+import { Expression, Program } from "./dice-lang-ast";
 
 interface DicePrintOptions {
   /**
@@ -61,8 +60,12 @@ function prettyPrintExpression(
       : `${expr.callee}(${args})`;
   }
 
-  if (expr.type !== "BinaryOperation") {
-    throw new Error("TODO: support " + expr.type);
+  if (expr.type === "UnaryOperation") {
+    const x = prettyPrintExpression(expr.operand, options);
+
+    return options?.format === "MathML"
+      ? `<mrow><mo>${expr.operator}</mo>${x}</mrow>`
+      : `(${expr.operator}(${x}))`;
   }
 
   let left = prettyPrintExpression(expr.left, options);
