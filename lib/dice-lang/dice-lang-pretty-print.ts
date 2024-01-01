@@ -61,11 +61,20 @@ function prettyPrintExpression(
   }
 
   if (expr.type === "UnaryOperation") {
-    const x = prettyPrintExpression(expr.operand, options);
+    let operand = prettyPrintExpression(expr.operand, options);
 
-    return options?.format === "MathML"
-      ? `<mrow><mo>${expr.operator}</mo>${x}</mrow>`
-      : `(${expr.operator}(${x}))`;
+    if (
+      options?.format === "pedanticParens" ||
+      expr.operand.type !== "CallExpression"
+    ) {
+      operand = p(operand);
+    }
+
+    if (options?.format === "MathML") {
+      return `<mrow><mo>${expr.operator}</mo>${operand}</mrow>`;
+    }
+
+    return `${expr.operator}${operand}`;
   }
 
   let left = prettyPrintExpression(expr.left, options);
