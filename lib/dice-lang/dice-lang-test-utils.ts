@@ -43,9 +43,10 @@ export const arbDiceAst = fc.letrec<{
 
   callExpression: fc.record({
     type: fc.constant("CallExpression"),
-    callee: fc
-      .stringMatching(/^[ac-zA-Z_][a-zA-Z0-9_]*$/)
-      .filter((callee) => callee !== "d"),
+    callee: fc.stringMatching(
+      // Disallow callee names that can be parsed as dice notation.
+      /^([a-ce-zA-Z_]|d[a-zA-Z_])[a-zA-Z0-9_]*$/
+    ),
     args: fc.array(tie("expression"), { depthIdentifier }),
   }),
 
