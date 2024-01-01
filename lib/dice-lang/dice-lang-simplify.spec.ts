@@ -1,5 +1,7 @@
+import fc from "fast-check";
 import { diceParser } from "./dice-lang-parse";
 import { diceLangSimplify } from "./dice-lang-simplify";
+import { arbDiceAst } from "./dice-lang-test-utils";
 
 describe("diceLangSimplify", () => {
   const testCases = [
@@ -25,4 +27,14 @@ describe("diceLangSimplify", () => {
       expect(diceLangSimplify(from)).toEqual(to);
     });
   }
+
+  it("is idempotent", () => {
+    fc.assert(
+      fc.property(arbDiceAst.program, (program) => {
+        const first = diceLangSimplify(program);
+        const second = diceLangSimplify(first);
+        expect(second).toEqual(first);
+      })
+    );
+  });
 });
