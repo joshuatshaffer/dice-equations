@@ -7,7 +7,7 @@ export interface NumberLiteral extends NodeBase {
   value: number;
 }
 
-export const unaryOperators = ["-", "!"] as const;
+export const unaryOperators = ["-"] as const;
 export type UnaryOperator = (typeof unaryOperators)[number];
 
 export interface UnaryOperation extends NodeBase {
@@ -61,7 +61,6 @@ export const uo = <O, X>(operator: O, operand: X) => {
 };
 
 export const neg = <X>(x: X) => uo("-" as const, x);
-export const fac = <X>(x: X) => uo("!" as const, x);
 
 export const bo = <L, O, R>(left: L, operator: O, right: R) => {
   return { type: "BinaryOperation" as const, left, operator, right };

@@ -42,8 +42,6 @@ export function pmf(expr: Expression): Pmf<number> {
       switch (expr.operator) {
         case "-":
           return -x;
-        case "!":
-          return factorial(x);
       }
     });
   }
