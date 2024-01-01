@@ -60,12 +60,18 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
     P.alt(
       P.seqMap(
         r.factor,
-        P.string("d").trim(r._),
+        P.string("d")
+          // So that identifiers can start with "d".
+          .notFollowedBy(P.regex(/[a-zA-Z_]/))
+          .trim(r._),
         r.factor,
         (left, operator, right): BinaryOperation => bo(left, operator, right)
       ),
       P.seqMap(
-        P.string("d").trim(r._),
+        P.string("d")
+          // So that identifiers can start with "d".
+          .notFollowedBy(P.regex(/[a-zA-Z_]/))
+          .trim(r._),
         r.factor,
         (operator, right): BinaryOperation => bo(n(1), operator, right)
       ),
