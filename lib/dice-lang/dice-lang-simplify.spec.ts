@@ -17,6 +17,7 @@ describe("diceLangSimplify", () => {
     "1 - (-(d2)) -> 1 + d2",
     "1 + (-(d2)) -> 1 - d2",
     "-(1 - d2) -> d2 - 1",
+    "explode(d6, 0) -> d6",
   ] as const;
 
   for (const testCase of testCases) {

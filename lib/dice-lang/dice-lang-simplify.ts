@@ -45,6 +45,8 @@ const replacements = (expr: Expression) =>
       ),
       ({ original, x0, x1, y }) => (x0 === x1 ? dice(n(x1), n(y)) : original)
     )
+    // explode(x, 0) -> x
+    .with(cx("explode", [P.select("x"), n(0)]), ({ x }) => x)
     // x+(y+z) -> (x+y)+z
     .with(
       add(P.select("x"), add(P.select("y"), P.select("z"))),

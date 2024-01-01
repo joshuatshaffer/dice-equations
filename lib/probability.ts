@@ -151,6 +151,35 @@ export function pmf(expr: Expression): Pmf<number> {
       }
     }
 
+    if (callee === "explode") {
+      if (expr.args.length !== 2) {
+        return Pmf.unit(NaN);
+      } else {
+        const base = pmf(expr.args[0]);
+
+        const [maxEvent, ...lesserEvents] = [...base].sort(([a], [b]) => b - a);
+
+        return pmf(expr.args[1]).flatMap((limit) => {
+          let exploded = base;
+          for (let i = 0; i < limit; ++i) {
+            exploded = Pmf.build((b) => {
+              // Copy lesser events.
+              for (const [event, probability] of lesserEvents) {
+                b(event, probability);
+              }
+
+              // Replace max event with a sum of max event and lesser events.
+              for (const [event, probability] of exploded) {
+                b(event + maxEvent[0], probability * maxEvent[1]);
+              }
+            });
+          }
+
+          return exploded;
+        });
+      }
+    }
+
     return Pmf.unit(NaN);
   }
 
