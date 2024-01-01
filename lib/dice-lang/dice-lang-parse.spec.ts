@@ -8,6 +8,15 @@ describe("diceParser", () => {
     });
   };
 
+  describe("Allows empty statements", () => {
+    itParses("", []);
+    itParses(";", []);
+    itParses(";;", []);
+    itParses("0;", [{ type: "NumberLiteral", value: 0 }]);
+    itParses(";0;", [{ type: "NumberLiteral", value: 0 }]);
+    itParses(";0", [{ type: "NumberLiteral", value: 0 }]);
+  });
+
   itParses("0", [{ type: "NumberLiteral", value: 0 }]);
   itParses("-0", [{ type: "NumberLiteral", value: -0 }]);
   itParses("+0", [{ type: "NumberLiteral", value: +0 }]);

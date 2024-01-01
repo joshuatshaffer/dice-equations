@@ -125,7 +125,11 @@ const diceLanguage = P.createLanguage<DiceLanguage>({
 
   statement: (r) => r.expr,
 
-  program: (r) => P.sepBy(r.statement, P.string(";")),
+  program: (r) =>
+    P.sepBy(P.alt<Statement | string>(r.statement, r._), P.string(";")).map(
+      (statements): Program =>
+        statements.filter((x): x is Statement => typeof x !== "string")
+    ),
 });
 
 export const diceParser = diceLanguage.program;
