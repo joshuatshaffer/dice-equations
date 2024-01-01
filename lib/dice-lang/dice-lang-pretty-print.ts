@@ -156,38 +156,3 @@ function prettyPrintExpression(
     ? `${left}${expr.operator}${right}`
     : `${left} ${expr.operator} ${right}`;
 }
-
-export const dicePrettyPrint2 = (expr: Expression): string =>
-  match<Expression, string>(expr)
-    .with(n(P.select("x")), ({ x }) => x.toString())
-    .otherwise(() => "TODO");
-
-export function diceLangPrintPedanticParens(expr: Expression): string {
-  if (expr.type === "NumberLiteral") {
-    return expr.value.toString();
-  }
-
-  if (expr.type === "UnaryOperation") {
-    const x = diceLangPrintPedanticParens(expr.operand);
-    if (expr.operator === "!") {
-      return `(${x})${expr.operator}`;
-    } else {
-      return `${expr.operator}(${x})`;
-    }
-  }
-
-  if (expr.type === "BinaryOperation") {
-    const l = diceLangPrintPedanticParens(expr.left);
-    const r = diceLangPrintPedanticParens(expr.right);
-    return `(${l})${expr.operator}(${r})`;
-  }
-
-  if (expr.type === "CallExpression") {
-    return `(${expr.callee})(${expr.args
-      .map((a) => diceLangPrintPedanticParens(a))
-      .map((a) => `(${a})`)
-      .join(", ")})`;
-  }
-
-  throw new TypeError("Invalid node type");
-}
