@@ -1,5 +1,3 @@
-import { FC } from "react";
-
 const colors = ["blue", "red", "green", "cyan", "yellow", "magenta"];
 
 export interface CombGraphProps {
@@ -12,13 +10,13 @@ export interface CombGraphProps {
   className?: string;
 }
 
-export const CombGraph: FC<CombGraphProps> = ({
+export function CombGraph({
   data,
   width,
   height,
   padding,
   className,
-}) => {
+}: CombGraphProps) {
   const s = stats(data);
 
   console.log(data, s);
@@ -77,7 +75,7 @@ export const CombGraph: FC<CombGraphProps> = ({
       })()}
     </svg>
   );
-};
+}
 
 function stats(data: readonly Iterable<readonly [number, number]>[]) {
   let s = {
