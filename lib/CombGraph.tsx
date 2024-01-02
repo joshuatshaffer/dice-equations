@@ -21,6 +21,8 @@ export const CombGraph: FC<CombGraphProps> = ({
 }) => {
   const s = stats(data);
 
+  console.log(data, s);
+
   // Include the x-axis in the view.
   if (0 < s.y.min) s.y.min = 0;
   if (0 > s.y.max) s.y.max = 0;
@@ -102,5 +104,9 @@ function mapRange(
   from: { min: number; max: number },
   to: { min: number; max: number }
 ): number {
+  // Avoid division by zero.
+  if (from.min === from.max) {
+    return (to.min + to.max) / 2;
+  }
   return ((x - from.min) / (from.max - from.min)) * (to.max - to.min) + to.min;
 }
