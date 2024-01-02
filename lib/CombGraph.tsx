@@ -19,8 +19,6 @@ export function CombGraph({
 }: CombGraphProps) {
   const s = stats(data);
 
-  console.log(data, s);
-
   // Include the x-axis in the view.
   if (0 < s.y.min) s.y.min = 0;
   if (0 > s.y.max) s.y.max = 0;
