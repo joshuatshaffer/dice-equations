@@ -10,30 +10,30 @@
     "test": "jest"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "6.1.2",
-    "@testing-library/react": "14.0.0",
-    "@types/jest": "29.5.4",
-    "@types/lodash": "4.14.197",
-    "@types/node": "20.5.7",
-    "@types/parsimmon": "1.10.6",
+    "@testing-library/jest-dom": "6.1.6",
+    "@testing-library/react": "14.1.2",
+    "@types/jest": "29.5.11",
+    "@types/lodash": "4.14.202",
+    "@types/node": "20.10.6",
+    "@types/parsimmon": "1.10.9",
     "@types/react": "18.2.46",
     "@types/react-dom": "18.2.18",
-    "eslint": "8.48.0",
+    "eslint": "8.56.0",
     "eslint-config-next": "14.0.4",
-    "fast-check": "3.12.0",
-    "jest": "29.6.4",
-    "jest-environment-jsdom": "29.6.4",
-    "jest-extended": "4.0.1",
+    "fast-check": "3.15.0",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "jest-extended": "4.0.2",
     "lodash": "4.17.21",
     "next": "14.0.4",
     "parsimmon": "1.18.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "sass": "1.66.1",
-    "ts-pattern": "5.0.5",
-    "typescript": "5.2.2"
+    "sass": "1.69.6",
+    "ts-pattern": "5.0.6",
+    "typescript": "5.3.3"
   },
   "devDependencies": {
-    "ts-node": "10.9.1"
+    "ts-node": "10.9.2"
   }
 }
