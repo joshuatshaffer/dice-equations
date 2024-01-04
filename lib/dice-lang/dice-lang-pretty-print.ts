@@ -15,10 +15,7 @@ export function dicePrettyPrint(
     return `<math><mtable>${program
       .map(
         (expr) =>
-          `<mtr><mtd><mrow>${prettyPrintExpression(
-            expr,
-            options
-          )}</mrow></mtd></mtr>`
+          `<mtr><mtd>${prettyPrintExpression(expr, options)}</mtd></mtr>`
       )
       .join("")}</mtable></math>`;
   }
@@ -61,7 +58,7 @@ function prettyPrintExpression(
         ? `<mrow><mo>&lfloor;</mo>${args}<mo>&rfloor;</mo></mrow>`
         : expr.callee === "ceil"
         ? `<mrow><mo>&lceil;</mo>${args}<mo>&rceil;</mo></mrow>`
-        : `<mi>${expr.callee}</mi><mrow><mo>(</mo>${args}<mo>)</mo></mrow>`
+        : `<mrow><mi>${expr.callee}</mi><mrow><mo>(</mo>${args}<mo>)</mo></mrow></mrow>`
       : `${expr.callee}(${args})`;
   }
 
@@ -90,7 +87,7 @@ function prettyPrintExpression(
   }
 
   if (options?.format === "MathML" && expr.operator === "/") {
-    return `<mfrac><mrow>${left}</mrow><mrow>${right}</mrow></mfrac>`;
+    return `<mfrac>${left}${right}</mfrac>`;
   }
 
   if (expr.operator === "+" || expr.operator === "-") {
@@ -163,13 +160,13 @@ function prettyPrintExpression(
 
   if (options?.format === "MathML") {
     if (expr.operator === "**") {
-      return `<msup><mrow>${left}</mrow><mrow>${right}</mrow></msup>`;
+      return `<msup>${left}${right}</msup>`;
     } else if (expr.operator === "d") {
-      return `${left}<ms>d</ms>${right}`;
+      return `<mrow>${left}<ms>d</ms>${right}</mrow>`;
     } else {
-      return `${left}<mo>${
+      return `<mrow>${left}<mo>${
         expr.operator === "*" ? "&sdot;" : expr.operator
-      }</mo>${right}`;
+      }</mo>${right}</mrow>`;
     }
   } else if (options?.format === "min" || expr.operator === "d") {
     return `${left}${expr.operator}${right}`;
