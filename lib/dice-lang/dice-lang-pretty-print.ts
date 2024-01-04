@@ -161,15 +161,19 @@ function prettyPrintExpression(
     right = p(right);
   }
 
-  return options?.format === "MathML"
-    ? expr.operator === "**"
-      ? `<msup><mrow>${left}</mrow><mrow>${right}</mrow></msup>`
-      : expr.operator === "d"
-      ? `${left}<ms>d</ms>${right}`
-      : `${left}<mo>${
-          expr.operator === "*" ? "&sdot;" : expr.operator
-        }</mo>${right}`
-    : options?.format === "min" || expr.operator === "d"
-    ? `${left}${expr.operator}${right}`
-    : `${left} ${expr.operator} ${right}`;
+  if (options?.format === "MathML") {
+    if (expr.operator === "**") {
+      return `<msup><mrow>${left}</mrow><mrow>${right}</mrow></msup>`;
+    } else if (expr.operator === "d") {
+      return `${left}<ms>d</ms>${right}`;
+    } else {
+      return `${left}<mo>${
+        expr.operator === "*" ? "&sdot;" : expr.operator
+      }</mo>${right}`;
+    }
+  } else if (options?.format === "min" || expr.operator === "d") {
+    return `${left}${expr.operator}${right}`;
+  } else {
+    return `${left} ${expr.operator} ${right}`;
+  }
 }
