@@ -36,7 +36,9 @@ function prettyPrintExpression(
   options: DicePrintOptions
 ): string {
   const p = (x: string) =>
-    options?.format === "MathML" ? `<mo>(</mo>${x}<mo>)</mo>` : `(${x})`;
+    options?.format === "MathML"
+      ? `<mrow><mo>(</mo>${x}<mo>)</mo></mrow>`
+      : `(${x})`;
 
   if (expr.type === "NumberLiteral") {
     return options?.format === "MathML"
