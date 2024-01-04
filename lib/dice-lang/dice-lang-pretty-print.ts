@@ -162,7 +162,7 @@ function prettyPrintExpression(
     if (expr.operator === "**") {
       return `<msup>${left}${right}</msup>`;
     } else if (expr.operator === "d") {
-      return `<mrow>${left}<ms>d</ms>${right}</mrow>`;
+      return `<mrow>${left}<mo lspace="0em" rspace="0em">d</mo>${right}</mrow>`;
     } else {
       return `<mrow>${left}<mo>${
         expr.operator === "*" ? "&sdot;" : expr.operator
