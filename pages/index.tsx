@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { Disclaimer } from "../lib/Disclaimer";
+import { Footer } from "../lib/Footer";
 import { TestGallery } from "../lib/TestGallery";
 
 export default function Home() {
@@ -13,6 +14,7 @@ export default function Home() {
         <Disclaimer />
         <TestGallery />
       </main>
+      <Footer />
     </>
   );
 }

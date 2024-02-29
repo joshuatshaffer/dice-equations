@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { DiceAstForm } from "../lib/DiceAstForm";
 import { Disclaimer } from "../lib/Disclaimer";
+import { Footer } from "../lib/Footer";
 
 const DicePage: NextPage = () => {
   return (
@@ -16,6 +17,7 @@ const DicePage: NextPage = () => {
         <Link href="/">Examples</Link>
         <DiceAstForm />
       </main>
+      <Footer />
     </>
   );
 };
