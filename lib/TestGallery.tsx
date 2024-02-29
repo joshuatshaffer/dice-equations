@@ -34,7 +34,7 @@ function Row({ equation }: { equation: string }) {
   return (
     <tr>
       <td>
-        <Link href={{ pathname: "/dice", query: { p: equation } }}>
+        <Link href={{ pathname: "/", query: { p: equation } }}>
           <code>{equation}</code>
         </Link>
       </td>
