@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Create Next App</title>
+        <title>Dice equation examples</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main>

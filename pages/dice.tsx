@@ -14,7 +14,7 @@ const DicePage: NextPage = () => {
       </Head>
       <main>
         <Disclaimer />
-        <Link href="/">Examples</Link>
+        <Link href="/examples">Examples</Link>
         <DiceAstForm />
       </main>
       <Footer />
