@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "deploy": "/home/joshua/data-i/personal-projects/active/my-server/derployer/derployer.sh dice ./out",
     "start": "next start",
     "lint": "next lint",
     "test": "jest"
