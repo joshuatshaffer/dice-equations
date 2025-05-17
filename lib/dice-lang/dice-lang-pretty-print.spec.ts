@@ -1,5 +1,6 @@
 import fc from "fast-check";
 import P from "parsimmon";
+import { describe, expect, it } from "vitest";
 import { Program } from "./dice-lang-ast";
 import { diceParser } from "./dice-lang-parse";
 import { dicePrettyPrint } from "./dice-lang-pretty-print";

@@ -1,6 +1,6 @@
-/// <reference types="jest-extended" />
 import fc from "fast-check";
 import { inspect } from "util";
+import { describe, expect, it } from "vitest";
 import { decimalToFraction, toME } from "./decimalToFraction";
 
 describe.skip("decimalToFraction", () => {
@@ -21,7 +21,7 @@ describe.skip("decimalToFraction", () => {
         const [n, d] = decimalToFraction(num);
         ctx.log(inspect({ n, d }));
 
-        expect(n).toBeInteger();
+        expect(n).toSatisfy(Number.isInteger);
       })
     );
   });
@@ -32,7 +32,7 @@ describe.skip("decimalToFraction", () => {
         const [n, d] = decimalToFraction(num);
         ctx.log(inspect({ n, d }));
 
-        expect(d).toBeInteger();
+        expect(d).toSatisfy(Number.isInteger);
       })
     );
   });

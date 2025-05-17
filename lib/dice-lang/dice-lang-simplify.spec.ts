@@ -1,4 +1,5 @@
 import fc from "fast-check";
+import { describe, expect, it } from "vitest";
 import { diceParser } from "./dice-lang-parse";
 import { diceLangSimplify } from "./dice-lang-simplify";
 import { arbDiceAst } from "./dice-lang-test-utils";

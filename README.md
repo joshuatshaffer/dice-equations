@@ -9,7 +9,6 @@
 
 ### To do
 
-- Migrate to [Vike](https://vike.dev/).
 - Better error messages for invalid equations.
 - Investigate performance of calculations.
 - Helper for finding an equivalent dice roll to one that the user does not have the dice for.

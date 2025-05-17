@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Program } from "../dice-lang/dice-lang-ast";
+import GraphWorker from "./graph-web-worker?worker";
 
 export function useGraphData(parsedProgram: Program | undefined) {
   const [graphData, setGraphData] = useState<
@@ -13,9 +14,7 @@ export function useGraphData(parsedProgram: Program | undefined) {
 
     // Compute graph data in a web worker because it can sometimes be an
     // intensive computation.
-    const worker = new Worker(
-      new URL("./graph-web-worker.ts", import.meta.url)
-    );
+    const worker = new GraphWorker();
 
     worker.addEventListener(
       "message",

@@ -1,8 +1,4 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
-import { ComponentType, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CombGraph } from "./CombGraph";
 import styles from "./DiceAstForm.module.scss";
 import { diceParser } from "./dice-lang/dice-lang-parse";
@@ -11,21 +7,17 @@ import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
 import { useGraphData } from "./useGraphData";
 import { useLatest } from "./useLatest";
 
-function clientOnly<P = {}>(Component: ComponentType<P>) {
-  return dynamic(() => Promise.resolve(Component), { ssr: false });
-}
-
-export const DiceAstForm = clientOnly(() => {
-  const router = useRouter();
-
+export function DiceAstForm() {
   const [inputValue, _setInputValue] = useState<string>(
-    // `router.query.p` is `undefined` on first render.
     () => new URLSearchParams(window.location.search).get("p") || "2d6+3"
   );
 
   const setInputValue = (value: string) => {
     _setInputValue(value);
-    router.replace({ query: { ...router.query, p: value } });
+
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set("p", value);
+    history.replaceState(null, "", newUrl);
   };
 
   const parseResult = useMemo(() => diceParser.parse(inputValue), [inputValue]);
@@ -138,4 +130,4 @@ export const DiceAstForm = clientOnly(() => {
       ) : null}
     </div>
   );
-});
+}

@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { diceParser } from "../lib/dice-lang/dice-lang-parse";
 import { dicePrettyPrint } from "../lib/dice-lang/dice-lang-pretty-print";
 import { diceLangSimplify } from "../lib/dice-lang/dice-lang-simplify";
+import { Link } from "./Link";
 import styles from "./TestGallery.module.scss";
 
 export function TestGallery() {
@@ -34,7 +34,7 @@ function Row({ equation }: { equation: string }) {
   return (
     <tr>
       <td>
-        <Link href={{ pathname: "/", query: { p: equation } }}>
+        <Link href={`/dice/?${new URLSearchParams({ p: equation })}`}>
           <code>{equation}</code>
         </Link>
       </td>

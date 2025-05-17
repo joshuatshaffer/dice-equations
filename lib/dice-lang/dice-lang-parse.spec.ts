@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { Program } from "./dice-lang-ast";
 import { diceParser } from "./dice-lang-parse";
 
