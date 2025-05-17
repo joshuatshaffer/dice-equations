@@ -2,14 +2,15 @@
 
 ## Features
 
-- Pretty print and minify dice equations.
+- Graph probability mass functions.
+- Pretty print and minify equations.
+- Simplify equations.
+- Store state in URL to support bookmarking and deep linking.
 
 ### To do
 
-- Store state in URL to support bookmarking, deep linking, and server rendering.
-- Make pretty graph of probability mass function.
+- Migrate to [Vike](https://vike.dev/).
 - Better error messages for invalid equations.
-- Simplify equations.
 - Investigate performance of calculations.
 - Helper for finding an equivalent dice roll to one that the user does not have the dice for.
 - Compare equations.
