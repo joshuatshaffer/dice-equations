@@ -1,4 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { usePageContext } from "vike-react/usePageContext";
+import { navigate } from "vike/client/router";
+import { modifyUrl } from "vike/modifyUrl";
 import { CombGraph } from "./CombGraph";
 import styles from "./DiceAstForm.module.scss";
 import { diceParser } from "./dice-lang/dice-lang-parse";
@@ -7,18 +10,21 @@ import { diceLangSimplify } from "./dice-lang/dice-lang-simplify";
 import { useGraphData } from "./useGraphData";
 import { useLatest } from "./useLatest";
 
+function useInputValue() {
+  const { urlParsed, urlOriginal } = usePageContext();
+
+  return [
+    urlParsed.search.p || "2d6+3",
+    (value: string) => {
+      navigate(modifyUrl(urlOriginal, { search: { p: value } }), {
+        overwriteLastHistoryEntry: true,
+      });
+    },
+  ] as const;
+}
+
 export function DiceAstForm() {
-  const [inputValue, _setInputValue] = useState<string>(
-    () => new URLSearchParams(window.location.search).get("p") || "2d6+3"
-  );
-
-  const setInputValue = (value: string) => {
-    _setInputValue(value);
-
-    const newUrl = new URL(window.location.href);
-    newUrl.searchParams.set("p", value);
-    history.replaceState(null, "", newUrl);
-  };
+  const [inputValue, setInputValue] = useInputValue();
 
   const parseResult = useMemo(() => diceParser.parse(inputValue), [inputValue]);
 
